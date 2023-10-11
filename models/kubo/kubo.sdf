@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+<sdf version="1.6">
+<model name="kubo">
+  <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://kubo/meshes/kubo.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

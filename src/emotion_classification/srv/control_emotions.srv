@@ -1,0 +1,13 @@
+string model_name
+int32 k_repetitions
+int32 size_fold
+int32 window_size
+int32 stride
+int32 num_epoch
+int32 batch_size
+int32 tolerance
+
+string control
+---
+int32 window_size
+int32 stride

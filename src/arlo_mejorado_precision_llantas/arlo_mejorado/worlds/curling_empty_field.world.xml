@@ -1,0 +1,92 @@
+<sdf version='1.7'>
+  <world name='default'>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose>2.57733 -18.9763 11.9098 0 0.798224 1.22127</pose>
+      </camera>
+    </gui>
+    <light name="sun" type="directional">
+      <cast_shadows>1</cast_shadows>
+      <pose>0 0 10 0 -0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>0 0.5 -0.9</direction>
+    </light>
+
+    <light name="point_light" type="point">
+      <pose>0 -0.377195 6.59868 0 -0 0</pose>
+      <diffuse>0.784314 0.784314 0.784314 1</diffuse>
+      <specular>0.0980392 0.0980392 0.0980392 1</specular>
+      <attenuation>
+        <range>60</range>
+        <constant>0.8</constant>
+        <linear>0.05</linear>
+        <quadratic>0.01</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+<!-- 
+    <include>
+      <uri>model://cafe</uri>
+    </include> -->
+ 
+    <model name="corral">
+    <include>
+      <uri>model://bardas_madera</uri>
+    </include>
+    </model>
+    
+    <model name="curling_target">
+    <include>
+      <pose>0 0 0.01 0 0 0</pose>
+      <uri>model://curling_target</uri>
+    </include>
+    </model>
+
+    <model name="caja_grande1">
+    <include>
+      <pose>0 -8.0 0.01 0 0 0</pose>
+      <uri>model://Box_33x15</uri>
+    </include>
+    </model>
+
+    <model name="caja_grande2">
+    <include>
+      <pose>3.5 -5 0.01 0 0 0</pose>
+      <uri>model://Box_33x15</uri>
+    </include>
+    </model>
+
+    <model name="caja_grande3">
+    <include>
+      <pose>-3.5 -5 0.01 0 0 0</pose>
+      <uri>model://Box_33x15</uri>
+    </include>
+    </model>
+
+    <model name="caja_grande4">
+    <include>
+      <pose>0 -2.75 0.01 0 0 0</pose>
+      <uri>model://Box_33x15</uri>
+    </include>
+    </model>
+
+    <model name="caja_grande5">
+    <include>
+      <pose>0 3.25 0.01 0 0 0</pose>
+      <uri>model://Box_33x15</uri>
+    </include>
+    </model>
+  </world>
+</sdf>

@@ -1,0 +1,8 @@
+string user_name
+string id_experiment   # puede ser optimized, protocol-{}, deap
+int32 num_ind   
+bool is_start
+bool is_stop
+int32 storage_pos
+string type_signal
+---

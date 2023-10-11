@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+<sdf version="1.6">
+<model name="kitchen_lamp">
+  <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <cast_shadows>1</cast_shadows>
+        <geometry>
+          <mesh>
+            <uri>model://Kitchen_Pendant_Lamp/meshes/model.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+  </model>
+</sdf>

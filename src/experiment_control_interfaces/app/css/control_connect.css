@@ -1,0 +1,106 @@
+/* boton play de las señales EEG */
+.btn_play {
+    border: 0;
+    background: transparent;
+    box-sizing: border-box;
+    width: 0;
+    height: 30px;
+    border-color: transparent transparent transparent black;
+    transition: 100ms all ease;
+    cursor: pointer;
+    border-style: solid;
+    border-width: 15px 0 15px 25px;
+    margin: 15px;
+}
+
+.btn_play.paused {
+    width: 0;
+    border-style: double;
+    border-width: 0px 0px 0px 25px;
+}
+
+.btn_play:hover {
+    border-color: transparent transparent transparent darkslateblue;
+}
+
+
+/*++++++++++++ indicadores de actividad+++++++++++++++*/
+.init {
+    background: green;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+}
+
+.stop {
+    background: red;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+
+}
+
+#indicators_container {
+    display: inline-flex;
+}
+
+.indicator_container {
+    padding: 10px;
+}
+
+.indicator {
+    display: block;
+    padding: 2px;
+}
+
+.indicator div {
+    transform: translateX(100%);
+}
+
+/* +++++++++Campo de conexión con la tarjeta +++++++++++++++ */
+#container_connect {
+    display: inline-flex;
+    border-bottom: 1px solid black;
+    width: 100%;
+    padding: 10px 5px 1px 10px;
+    margin: 0;
+    /* border: 1px solid red; */
+}
+
+#conatiner_controls {
+    display: inline-flex;
+}
+
+#container_update input {
+    width: 100px;
+    margin: 5px 10px;
+}
+
+/* boton de inicio del experimento */
+.btn_aspect {
+    margin: 5px 10px;
+    border-radius: 50%;
+    height: 70px;
+    width: 70px;
+    background: rgb(12, 64, 160);
+    color: aliceblue;
+    font-size: 18px;
+}
+
+/*  */
+#container_user {
+    /* display: inline-flex; */
+    background: rgba(124, 144, 255, 0.651);
+    padding: 5px;
+    width: 300px;
+}
+
+#control_user {
+    display: inline-flex;
+    width: 100%;
+}
+
+/* #container_connect {
+    background: rgba(218, 112, 112, 0.767);
+    width: max-content;
+} */

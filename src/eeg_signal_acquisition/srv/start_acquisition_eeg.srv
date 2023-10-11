@@ -1,0 +1,8 @@
+string user_name
+string id_pareto_front
+int32 num_ind
+int32 storage_pos
+bool is_publish
+bool is_save_file
+---
+string id_eeg_signal

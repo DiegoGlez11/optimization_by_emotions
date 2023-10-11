@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+    <!-- sirve de base de datos -->
+    <node name="server_db_node"
+        pkg="neurocontroller_database"
+        type="server_db"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- ayuda para calcular las evaluaciones multiclase-->
+    <node name="evaluations_node"
+        pkg="neurocontroller_database"
+        type="evaluations.py"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- NODOS DEL ENTRENAMIENTO -->
+    <!-- Carga los datos EEG -->
+    <node name="dataset_loader_node"
+        pkg="neurocontroller_database"
+        type="dataset_loader.py"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- entrenamiento de las redes -->
+    <node name="model_selection_node"
+        pkg="emotion_classification"
+        type="model_selection.py"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- NODOS DEL CICLO EEG -->
+    <!-- control del casco EEG -->
+    <node name="eeg_controller_node"
+        pkg="eeg_signal_acquisition"
+        type="eeg_controller"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- preprocesamiento de la señal -->
+    <node name="preprocessing_node"
+        pkg="eeg_signal_acquisition"
+        type="preprocessing"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- predicción de la señal  -->
+    <node name="classification_node"
+        pkg="emotion_classification"
+        type="classification.py"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- preferencias -->
+    <node name="preference_model_node"
+        pkg="user_interaction"
+        type="preference_model.py"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- control de los neurocontroladores con la simulación -->
+    <node name="arlo_controller_node"
+        pkg="arlo_controller_dmaking"
+        type="arlo_controller_dmaking"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- sonido de la simulación -->
+    <node name="sound_effect_node"
+        pkg="arlo_controller_dmaking"
+        type="sound_effect.py"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- gui para controlar el experimento -->
+    <node name="run_gui_control"
+        pkg="experiment_control_interfaces"
+        type="start_gui.sh"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- gui para el usuario -->
+    <node name="run_gui_user"
+        pkg="user_interaction"
+        type="start_gui.sh"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <include file="$(find arlo_mejorado)/launch/xbot_basic_house.launch" />
+
+</launch>

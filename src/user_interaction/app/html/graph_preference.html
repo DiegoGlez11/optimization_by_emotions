@@ -1,0 +1,524 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Selección de preferencias</title>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <link rel="stylesheet" href="../css/graph_preference.css">
+  <link rel="stylesheet" href="../css/element_graphic.css">
+  <link rel="stylesheet" href="../css/user.css">
+  <link rel="stylesheet" href="../css/view_ind.css">
+  <link rel="stylesheet" href="../css/affective_slider.css">
+  <link rel="stylesheet" href="../css/control_fatigue.css">
+  <link rel="stylesheet" href="../css/custom_satisfied.css">
+  <link rel="stylesheet" href="../css/timer.css">
+  <link rel="stylesheet" href="../css/background.css">
+  <link rel="stylesheet" href="../css/button_style.css">
+  <link rel="stylesheet" href="../css/table.css">
+  <link rel="stylesheet" href="../css/interface_test.css">
+
+  <!-- Insert this line above script imports  -->
+  <script>
+    if (typeof module === "object") {
+      window.module = module;
+      module = undefined;
+    }
+  </script>
+
+  <script>
+    const zoomPlugin = require('chartjs-plugin-zoom');
+    const rosnodejs = require("rosnodejs");
+    const Chart = require("chart.js");
+    const Plotly = require('plotly.js-dist-min')
+    const fs = require("fs");
+    const randomColor = require('randomcolor');
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+    const homedir = require('os').homedir();
+    const exec = require('child_process').exec;
+    const { contextBridge, ipcRenderer } = require('electron')
+
+    Chart.register(zoomPlugin);
+
+    // Register node with ROS master
+    function init_ROS() {
+      return new Promise((resolve, reject) => {
+        rosnodejs.initNode("user_interaction").then((rosNode) => {
+          rosnodejs.log.info("Nodo creado con exito");
+          resolve();
+        }).catch((e) => {
+          console.error("No se pudo crear el nodo ROS: " + e);
+          alert("Sin conexion con la red ROS: " + e);
+          reject();
+        });
+      });
+    }
+    init_ROS();
+
+    //se importan los mensajes ros
+    // const nsga2_dmaking = rosnodejs.require('nsga2_dmaking').srv;
+    const neurocontroller_database = rosnodejs.require('neurocontroller_database').srv;
+    const emotion_classification = rosnodejs.require('emotion_classification').srv;
+    const eeg_signal_acquisition = rosnodejs.require('eeg_signal_acquisition').srv;
+    const arlo_controller_dmaking = rosnodejs.require('arlo_controller_dmaking').srv;
+    const user_interaction = rosnodejs.require("user_interaction").srv;
+
+    let dataset_chartjs = { data: [], label: "", pointBackgroundColor: [randomColor()] };
+
+    // indica si la captura de las emociones es BCI, Tradicional o SAM
+    var EMOTIONS_CAPTURE_MODE = "";
+    // datos de control
+    var SELECTION_MODE = "";
+    // gráfica de interacción
+    var TYPE_GRAPH = "";
+    // normalization
+    var NORMALIZATION;
+
+    var INTERFACE_TEST = false;
+
+
+    // guarda la info de los frentes de pareto, utilizada para crear las gráficas
+    let ds_fronts = {};
+    // pos de los individuos en su frente correspondiente
+    var pos_ind = {};
+    // fila de frentes a cargar en la interfaz
+    var DATA_FRONT = [];
+    // datos de control del flujo
+    var DATA_CONTROL = { select_ind: false };
+
+
+    // color inicial de los puntos
+    var color_point = "rgba(173, 27, 27, 0.61)";
+    // color de éxito 
+    var color_success = "green";
+    // color de error
+    var color_error = "red";
+
+    // ruta donde se guardan los datos
+    var root_dir = homedir + "/catkin_ws/src/neurocontroller_database/database";
+
+    //nos indica donde se encuentra el frente de pareto en el arreglo 
+    //que muestra los frentes en la interfaz gráfica
+    var tree_pos = {};
+  </script>
+
+  <!-- Insert this line after script imports -->
+  <script>
+    if (window.module) module = window.module;
+  </script>
+</head>
+
+<body id="user_body">
+
+  <div id="container_graph">
+
+    <!-- ----------------------- -->
+    <!-- gráfica de preferencias -->
+    <!-- ----------------------- -->
+    <div id="container_object_spce">
+      <!-- grafica de preferencias -->
+      <div id="container_graph_obj_space" style="display: inline-flex;">
+        <div id="graph_object_space"></div>
+      </div>
+
+      <div id="window_block"></div>
+
+      <div id="window_new_fronts">
+        <div id="window_new_front_container">
+          <div id="background_img"> </div>
+          <h1 id="background_txt">Calculando nuevos Neurocontroladores ...</h1>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- <div id="container_graph_preference" class="not_user_interact">
+      <div id="container_graph_pareto" class="not_user_interact">
+        <canvas id="canva"></canvas>
+      </div>
+    </div>
+
+    <div id="container_individuals" class="not_user_interactt"></div> -->
+
+
+    <!-- texto del individuo actual -->
+    <div id="txt_ind">
+      <h2 style="color: red;">Neurocontrolador:</h2>
+    </div>
+
+    <div id="container_control">
+      <!-- timer -->
+      <div id="container_timer">
+        <div id="app"></div>
+      </div>
+
+      <!-- botones de control -->
+      <div style="display: inline-flex; width: 100%">
+        <div class="btn_exp">
+          <a href="#" id="a_agree" style="font-size: 20px; width: 360px;">Conforme con la solución</a>
+        </div>
+
+        <div class="btn_exp">
+          <a href="#" id="a_exit" style="width: 140px;">Salir</a>
+        </div>
+
+        <!-- <a href="#" class="next round" id="next_individual">&#8250;</a> -->
+      </div>
+    </div>
+
+    <div id="container_bottom">
+
+      <!-- ---------------------- -->
+      <!-- metricas de evaluación -->
+      <!-- ---------------------- -->
+      <div id="container_metrics" style="display: inline;">
+
+        <!-- ---------------------- -->
+        <!-- usabilidad del sistema -->
+        <!-- ---------------------- -->
+        <div id="right_metric">
+          <!-- slider fatiga -->
+          <div class="container_metric_fatigue ">
+            <img src="../img/fatiga/agotado.svg" class="img_metric">
+
+            <div class="fatigue_metric">
+              <input type="range" min="0" max="1" value="0.5" id="fatigue_slider" step="0.01">
+              <div class="triangle left"></div>
+              <div class="triangle right"></div>
+
+              <div id="color_valance"></div>
+              <label for="arousal" class="label_indicator">Fatigado / Activo</label>
+
+            </div>
+            <img src="../img/fatiga/activo.svg" class="img_metric">
+
+            <button id="btn_send_fatigue">Enviar</button>
+          </div>
+          <br>
+          <br>
+          <!-- <button id="btn_agreed" class="btn_end" value="satisfecho">Conforme con mi solución</button> -->
+        </div>
+
+        <br>
+
+        <!-- ------------------------ -->
+        <!-- Evaluaciones emocionales -->
+        <!-- ------------------------ -->
+        <div id="left_metric">
+          <div id="container_russell">
+
+            <div class="container_metric">
+              <img src="../img/emotion_slider/triste.png" class="img_metric">
+
+              <div class="russell_metric">
+                <input type="range" min="0" max="1" value="0.5" id="valence" step="0.01">
+                <div class="triangle left"></div>
+                <div class="triangle right"></div>
+                <div id="color_valance"></div>
+                <label for="valence" class="label_indicator">Insatisfecho - Satisfecho</label>
+              </div>
+
+              <img src="../img/emotion_slider/feliz.png" class="img_metric">
+            </div>
+          </div>
+
+
+          <div class="container_metric">
+            <img src="../img/emotion_slider/aburrido.png" class="img_metric">
+
+            <div class="russell_metric">
+              <input type="range" min="0" max="1" value="0.5" id="arousal" step="0.01">
+              <div class="triangle left"></div>
+              <div class="triangle right"></div>
+              <div id="color_arousal"></div>
+              <label for="arousal" class="label_indicator">Aburrido - Emocionado</label>
+            </div>
+
+            <img src="../img/emotion_slider/emocionado.png" class="img_metric">
+          </div>
+
+          <button id="russell_point">Enviar</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ------------------- -->
+    <!-- Ventana de mensajes -->
+    <!-- ------------------- -->
+    <div id="container_msg">
+      <!-- <div id="cyton">
+          <br>
+          <h1>Adquiriendo señales cerebrales</h1>
+        </div> -->
+    </div>
+  </div>
+
+
+  <!-- limite de neurocontroladores -->
+  <div id="window_last_front">
+    <div id="wrap_last_front">
+      <h1>Límite de neurocontroladores</h1>
+      <div id="wrap_btn_last_front">
+        <button id="btn_last_front" class="button-80">Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- mensaje de nuevo experimento -->
+  <div id="msg_all_window">
+    <h1>Iniciando el experimento</h1>
+  </div>
+
+  <!-- ventana de terminación del experimento -->
+  <div id="container_fatigue">
+    <div id="float_window">
+      <div id="back_window"></div>
+
+      <div id="c_uac">
+        <h1>¿ Deseas terminar el experimento ?</h1>
+      </div>
+
+      <div id="container_btn_end">
+        <div id="btn_end_left">
+          <button id="btn_si" class="btn_si_no" value="end_window">Sí</button>
+        </div>
+        <div id="btn_end_right">
+          <button id="btn_no" class="btn_si_no">No</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- video de introducción -->
+  <div id="container_intro_video">
+    <video src="" width="100%" height="100%" id="video_intro" controls>
+      <source id="video_intro_src">
+    </video>
+  </div>
+
+
+  <!-- questionario final -->
+  <div id="container_questionnaire">
+    <div id="msg_quest">
+      <!-- <div class="ask_text">
+        <h1 class="">Tus soluciones</h1>
+      </div> -->
+      <!-- <div class="option_text">
+        <h1></h1>
+      </div> -->
+    </div>
+  </div>
+
+  <!-- venta de despedida -->
+  <div id="end_experiment">
+    <img src="../img/bacground6.jpg" id="end_background">
+
+    <div id="msg_end">
+      <div id="rec"></div>
+      <label>Tu contribución es importante para el avance de la ciencia</label>
+      <br><br>
+      <label>¡ Agradecemos tu participación !</label>
+    </div>
+
+    <div id="container_background">
+      <div id="container_logo">
+        <img src="../img/cerebral_logo.jpg" alt="logo" id="cerebral_img">
+        <h1 id="logo_txt">Cerebral</h1>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+  <!-- ------------------- -->
+  <!-- ventana de descanso -->
+  <!-- ------------------- -->
+  <!-- <div id="container_rest">
+    <div id="container_content_rest">
+
+      <div id="txt_rest">
+        <h1>Experimento pausado</h1>
+      </div>
+
+      <div id="c_desc">
+        <div id="move_txt">
+          <h3>Motivo del descanso</h3><br>
+          <textarea name="" id="description_pause" cols="30" rows="10"></textarea>
+          <br>
+          <button id="btn_continuar">Continuar</button>
+        </div>
+      </div>
+
+
+    </div>
+  </div> -->
+
+  <!-- --------------------------------- -->
+  <!-- score de calificación del sistema -->
+  <!-- --------------------------------- -->
+  <!-- <div id="container_custom_satified">
+    <div id="center_custom">
+      <div id="custom_msg">
+        <h2>Califica tu satisfacción usando el software</h2>
+      </div>
+      <br>
+
+      <div id="container_emoticons">
+        <div class="custom_val">
+          <img src="../img/custom satisfied/customer_satis1.svg" value="muy insatisfecho" class="score">
+          <br>
+          <div class="custom_text" id="muy_insatisfecho">
+            <h2>Muy insatisfecho</h2>
+          </div>
+        </div>
+
+        <div class="custom_val">
+          <img src="../img/custom satisfied/customer_satis2.svg" value="insatisfecho" class="score">
+          <br>
+          <div class="custom_text" id="insatisfecho" value="insatisfecho">
+            <h2>Insatisfecho</h2>
+          </div>
+        </div>
+
+        <div class="custom_val">
+          <img src="../img/custom satisfied/customer_satis3.svg" value="neutral" class="score">
+          <br>
+          <div class="custom_text" id="neutral">
+            <h2>Neutral</h2>
+          </div>
+        </div>
+
+        <div class="custom_val">
+          <img src="../img/custom satisfied/customer_satis4.svg" value="satisfecho" class="score">
+          <br>
+          <div class="custom_text" id="satisfecho">
+            <h2>Satisfecho</h2>
+          </div>
+        </div>
+
+        <div class="custom_val">
+          <img src="../img/custom satisfied/customer_satis5.svg" value="muy satisfecho" class="score">
+          <br>
+          <div class="custom_text" id="muy_satisfecho">
+            <h2>Muy satisfecho</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+
+
+  <script src="../scripts/ROS_funtions.js"></script>
+  <script src="../scripts/utilities.js"></script>
+  <script src="../scripts/control_user.js"></script>
+  <script src="../scripts/load_pareto_front.js"></script>
+  <script src="../scripts/graph_preference.js"></script>
+  <script src="../scripts/end_experiment.js"></script>
+  <script src="../scripts/control_fatigue.js"></script>
+  <script src="../scripts/emotion_slider.js"></script>
+  <script src="../scripts/basal_state.js"></script>
+  <script src="../scripts/experiment_control.js"></script>
+  <script src="../scripts/timer.js"></script>
+  <script src="../scripts/intro_video.js"></script>
+  <script src="../scripts/pref_solution.js"></script>
+  <script src="../scripts/table_obj.js"></script>
+
+  <script>
+    // se muestra la interfaz de las preferencias
+    show_one_window("graph");
+
+
+    // show_one_window("questionnaire");
+    // show_option_ask1("traditional", "puntero")
+    // show_option_ask1("sam", "SAM");
+    // show_option_ask1("two_msg", "SAM");
+    // start_ask1();
+    // show_option_ask1("ask1", "Tus soluciones");
+
+    // se resetea el ind actual
+    update_actual_ind("", "", "").catch((e) => {
+      console.error(e);
+    });
+
+    play_gazebo();
+
+    control_robot("stop").then(() => {
+      // se reinicia la simulación
+      let srv = rosnodejs.nh.serviceClient("/gazebo/reset_simulation", "std_srvs/Empty");
+      srv.call({}).catch(() => { console.error("Error al resetear la simulación"); });
+    });
+
+
+    // window.onresize = (r) => {
+    //   resize_win();
+    // }
+
+
+    // ++++++++++++++++++++++++++++++++++++++++
+    // config iniciales
+    // ++++++++++++++++++++++++++++++++++++++++
+
+    load_object(`${root_dir}/control_params.txt`).then((params) => {
+      change_mode_interfaz(params["emotions_capture_mode"])
+      change_mode_selection(params["selection_mode"]);
+      change_graph(params["type_user_graph"]);
+      change_norm(params["normalization"]);
+    });
+
+    // ++++++++++++++++++++++++++++++++++++++++
+    // tipo de gráfica para usar en la interfaz
+    // ++++++++++++++++++++++++++++++++++++++++
+
+    // servicio para cambiar la gráfica
+    rosnodejs.nh.advertiseService("/change_type_graph", "user_interaction/experiment_control", (req, res) => {
+      let mode = req.control;
+      return change_graph(mode);
+      // return true;
+    });
+
+    // +++++++++++++++++++++++++++++++++++++
+    // MODO DE CAPTURA DE LAS EMOCIONES
+    // +++++++++++++++++++++++++++++++++++++
+
+    // servicio para cambiar de modo
+    rosnodejs.nh.advertiseService("/change_mode_capture", "user_interaction/experiment_control", (req, res) => {
+      let mode = req.control;
+      change_mode_interfaz(mode);
+      return true;
+    });
+
+    // servicio para cambiar la forma de obtener las emociones: sel_automatico/sel_manual
+    rosnodejs.nh.advertiseService("/change_selection_ind", "user_interaction/experiment_control", (req, res) => {
+      let mode = req.control;
+      change_mode_selection(mode);
+      return true;
+    });
+
+
+    // +++++++++++++++++++++++++++++++++++++
+    // narmalización
+    // +++++++++++++++++++++++++++++++++++++
+
+    // servicio para cambiar de modo
+    rosnodejs.nh.advertiseService("/change_norm", "user_interaction/experiment_control", (req, res) => {
+      let mode = req.control; //do_norm - deactiv_norm
+      change_norm(mode);
+      return true;
+    });
+
+    // +++++++++++++++++++++++++++++++++++++++
+    // topico de las preferencias emocionales
+    rosnodejs.nh.advertise("/emotional_prediction", "emotion_classification/emotional_prediction");
+
+  </script>
+
+</body>
+
+</html>

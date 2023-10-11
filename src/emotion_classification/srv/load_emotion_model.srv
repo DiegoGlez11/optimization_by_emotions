@@ -1,0 +1,7 @@
+string user_name
+string model_name
+string id_emotion_model
+
+int32 repetition_k
+int32 num_fold
+---

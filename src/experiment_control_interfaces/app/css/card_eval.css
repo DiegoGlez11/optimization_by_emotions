@@ -1,0 +1,91 @@
+/*  */
+.cont1 {
+    display: inline-block;
+    width: fit-content;
+    /* background: blue; */
+    /* position: relative; */
+}
+
+.container_graph_evals {
+    display: block;
+    /* width: 1000px; */
+    width: fit-content;
+    /* width: 100%; */
+    background: rebeccapurple;
+    /* display: inline-flex; */
+}
+
+.container_graph_ {
+    width: 400px;
+    display: block;
+    background: blue;
+}
+
+.container_eval_fold {
+    background: rgb(199, 223, 196);
+    width: fit-content;
+}
+
+.container_eval_test {
+    background: rgb(223, 209, 196);
+    width: fit-content;
+
+}
+
+
+.container_cards {
+    border: 2px solid black;
+    display: inline-flex;
+    width: 100%;
+}
+
+.card_info {
+    border-bottom: 2px solid black;
+    background: rgb(224, 8, 8);
+}
+
+
+
+
+/* matriz de confusion */
+.conf_matrix {
+    border: 2px solid black;
+}
+
+.cell_cm {
+    border: 2px solid rgb(46, 49, 53);
+    padding: 3px;
+    margin: 0;
+}
+
+
+
+
+/* .eval_graph {
+    width: 200px;
+    background: bisque;
+    border: 2px solid black;
+    padding: 5px;
+} */
+
+.card {
+    border: 3px solid rgb(0, 0, 0);
+    display: block;
+}
+
+
+
+
+/* #graph_evals {
+    width: 100%;
+    height: 400px;
+} */
+
+/* .container_emotion_class {
+    display: inline-flex;
+}
+
+.container_prom_evals {
+    display: inline-flex;
+    border: 2px solid black;
+} */

@@ -1,0 +1,44 @@
+*.rar
+*.zip
+*.pkl
+# *.mp3
+# *.mp4
+# *.wav
+notas.txt
+**/.vscode/
+**/node_modules/
+**/emotion_evocation_protocol/app/resources/
+# **/user_interaction/app/source/
+**/__pycache__/
+**/.ipynb_checkpoints/
+
+
+# !neurocontroller_database/
+**/neurocontroller_database/*
+!**/neurocontroller_database/src/
+!**/neurocontroller_database/srv/
+!**/neurocontroller_database/CMakeLists.txt
+!**/neurocontroller_database/package.xml
+
+
+# !neurocontroller_database/database/
+**/neurocontroller_database/database/*
+!**/neurocontroller_database/database_populations/
+!**/neurocontroller_database/database/
+!**/neurocontroller_database/database/control_params.txt
+!**/neurocontroller_database/database/fronts_table.txt
+!**/neurocontroller_database/database/range_objectives.txt
+!**/neurocontroller_database/database/train_parameters.txt
+!**/neurocontroller_database/database/optimized_individuals/
+
+# !neurocontroller_database/scripts_to_results/
+**/neurocontroller_database/scripts_to_results/*
+!**/neurocontroller_database/scripts_to_results/
+!**/neurocontroller_database/scripts_to_results/before_experiments.ipynb
+!**/neurocontroller_database/scripts_to_results/SAM: neurocontroladores.ipynb
+!**/neurocontroller_database/scripts_to_results/resultados experimentos.ipynb
+
+
+build/
+devel/
+

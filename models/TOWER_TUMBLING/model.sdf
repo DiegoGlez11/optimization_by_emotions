@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<!--
+Copyright 2020 Google LLC.
+
+This work is licensed under the Creative Commons Attribution 4.0
+International License. To view a copy of this license, visit
+http://creativecommons.org/licenses/by/4.0/ or send a letter
+to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+-->
+<sdf version="1.6">
+  <model name="TOWER_TUMBLING">
+    <link name="link_0">
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>0.00019800</ixx>
+          <ixy>-0.00001075</ixy>
+          <ixz>-0.00002451</ixz>
+          <iyy>0.00018833</iyy>
+          <iyz>0.00000320</iyz>
+          <izz>0.00019127</izz>
+        </inertia>
+        <pose frame=''>0 0 0.12 0 0 0</pose>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>meshes/model.obj</uri>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision_0">
+        <geometry>
+          <mesh>
+            <uri>meshes/model.obj</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

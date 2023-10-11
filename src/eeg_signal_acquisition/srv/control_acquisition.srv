@@ -1,0 +1,7 @@
+#Request
+bool sampling_rate
+bool board_id
+---
+#Response
+int32 sampling_rate
+int32 board_id

@@ -1,0 +1,91 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Estimulación: Detección de emociones</title>
+
+
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="styles/bootstrap.min.css">
+  <link rel="stylesheet" href="styles/affective_slider.css">
+  <link rel="stylesheet" href="styles/emoDetectStyle.css">
+
+  <!-- Insert this line above script imports  -->
+  <script>
+    if (typeof module === "object") {
+      window.module = module;
+      module = undefined;
+    }
+  </script>
+
+  <script>
+    const rosnodejs = require("rosnodejs");
+    let $ = require("jquery");
+    let udp_gram = require('dgram');
+    const fs = require('fs');
+    const homedir = require('os').homedir();
+    var root_dir = homedir + "/catkin_ws/src/neurocontroller_database/database";
+
+    const eeg_signal_acquisition = rosnodejs.require('eeg_signal_acquisition').srv;
+    const neurocontroller_database = rosnodejs.require('neurocontroller_database').srv;
+    const emotion_evocation_protocol = rosnodejs.require('emotion_evocation_protocol').srv;
+
+  </script>
+
+  <!-- Insert this line above script imports  -->
+  <script>
+    if (typeof module === "object") {
+      window.module = module;
+      module = undefined;
+    }
+  </script>
+
+</head>
+
+<body>
+
+  <!-- video introducción -->
+  <video width="100%" height="100%" autoplay controls id="video_intro">
+    <!-- <source src="resources/introduccion.mp4" type="video/mp4"> -->
+    <source id="video_intro_src">
+  </video>
+
+  <div class="container">
+
+    <!-- campo de texto para ingresar el usuario -->
+    <div class="form-group" id="nameForm">
+      <label for="nombre">Nombre del participante</label>
+      <input type="text" class="form-control" id="name_user" placeholder="">
+      <button type="button" id="startEmoDetect" class="btn btn-primary" disabled="">Iniciar</button>
+      <!-- onclick="start(); this.disabled=true;" -->
+    </div>
+
+    <!-- indicadores del experimento: número de video y cruz para centrar la mirada -->
+    <div class="center_indicator" id="text" width="320" height="240">
+      <h1 id="count"></h1>
+    </div>
+
+    <!-- ventana del video -->
+    <video width="1400" height="600" autoplay controls class="centerVideo" style="display: ;" id="videoEmo">
+      <source src="" type="video/mp4">
+    </video>
+
+    <!-- affective slider -->
+    <form class="AffectiveSlider">
+      <div id='AffectiveSlider' style="display: none;"></div>
+      <div class="container_btn">
+        <button type="button" id="rateBtn" class="btn btn-primary" style="display: none;">Calificar</button>
+      </div>
+    </form>
+
+  </div>
+
+
+  <script src="scripts/ros_srv.js"></script>
+  <script src="scripts/protocol.js"></script>
+</body>
+
+</html>

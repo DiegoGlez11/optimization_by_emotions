@@ -1,0 +1,35 @@
+table {
+    border: black 1px solid;
+    padding: 5px;
+    /* width: 350px; */
+}
+
+.t_head {
+    background: rgb(51, 51, 51);
+    color: white;
+}
+
+th {
+    /* padding: 13px 15px; */
+    padding: 9px 0;
+}
+
+td {
+    margin: 0;
+    padding: 9px 5px;
+    text-align: center;
+}
+
+.data_td {
+    border: 1px solid;
+    border-color: transparent black transparent transparent;
+}
+
+.pair_r {
+    background: rgba(226, 226, 226, 0.829);
+}
+
+.row:hover {
+    background: rgb(180, 179, 179);
+    cursor: pointer;
+}

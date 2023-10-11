@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+    <!-- sirve de base de datos -->
+    <node name="server_db_node"
+        pkg="neurocontroller_database"
+        type="server_db"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- ayuda para calcular las evaluaciones multiclase-->
+    <node name="evaluations_node"
+        pkg="neurocontroller_database"
+        type="evaluations.py"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- NODOS DEL ENTRENAMIENTO -->
+    <!-- Carga los datos EEG -->
+    <node name="dataset_loader_node"
+        pkg="neurocontroller_database"
+        type="dataset_loader.py"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+
+    <!-- preprocesamiento de la señal -->
+    <node name="preprocessing_node"
+        pkg="eeg_signal_acquisition"
+        type="preprocessing"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <!-- predicción de la señal  -->
+    <node name="classification_node"
+        pkg="emotion_classification"
+        type="classification.py"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+
+    <!-- gui para controlar el experimento -->
+    <node name="run_gui_control"
+        pkg="experiment_control_interfaces"
+        type="start_gui.sh"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+
+</launch>

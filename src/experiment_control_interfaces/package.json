@@ -1,0 +1,22 @@
+{
+  "name": "experiment_control_interfacess",
+  "version": "1.0.0",
+  "description": "Interfaz gráfica para controlar el experimento de capturar las señales EEG para extraer las emociones del usuario mientras observan como conduce un una red completamente conectada (neurocontrolador) un robot móvil. Las emociones se usan para extraer información emocional y guiar la búsqueda del neurocontrolador por medio de un proceso evolutivo, realizado por un algoritmo evolutivo multiobjetivo.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "author": "Diego González Chávez",
+  "license": "ISC",
+  "dependencies": {
+    "async-mutex": "^0.4.0",
+    "chart.js": "^3.8.2",
+    "chartjs-plugin-zoom": "^1.2.1",
+    "electron": "^22.0.2",
+    "plotly.js-dist-min": "^2.14.0",
+    "randomcolor": "^0.6.2",
+    "rosnodejs": "^3.1.0",
+    "serialport": "^10.4.0"
+  }
+}

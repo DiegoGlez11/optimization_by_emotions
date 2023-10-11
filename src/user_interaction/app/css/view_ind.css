@@ -1,0 +1,22 @@
+#container_individuals {
+    display: inline;
+}
+
+.container_pareto {
+    display: inline;
+}
+
+
+.title_ind {
+    background-color: red;
+    display: inline-block;
+    width: 220px;
+    text-align: center;
+}
+
+.view_ind {
+    display: inline-block;
+    background: rgb(9, 96, 172);
+    border: black solid 1px;
+    padding: 2px 2px;
+}

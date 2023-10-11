@@ -1,0 +1,2 @@
+bool is_capturing
+bool is_connected

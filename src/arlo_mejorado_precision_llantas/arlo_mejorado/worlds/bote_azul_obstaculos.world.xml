@@ -1,0 +1,88 @@
+<sdf version='1.7'>
+  <world name='default'>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose>2.57733 -18.9763 11.9098 0 0.798224 1.22127</pose>
+      </camera>
+    </gui>
+    <light name="sun" type="directional">
+      <cast_shadows>1</cast_shadows>
+      <pose>0 0 10 0 -0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>0 0.5 -0.9</direction>
+    </light>
+
+    <light name="point_light" type="point">
+      <pose>0 -0.377195 6.59868 0 -0 0</pose>
+      <diffuse>0.784314 0.784314 0.784314 1</diffuse>
+      <specular>0.0980392 0.0980392 0.0980392 1</specular>
+      <attenuation>
+        <range>50</range>
+        <constant>0.8</constant>
+        <linear>0</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://cafe</uri>
+    </include>
+ 
+    <model name="sofa_01">
+    <include>
+      <pose>3 -6.0 0 0 0 0</pose>
+      <uri>model://sofa_set_2</uri>
+    </include>
+    </model>
+    
+    <model name="sofa_02">
+    <include>
+      <pose>3 -10.3 0 0 0 3.14</pose>
+      <uri>model://sofa_set_2</uri>
+    </include>
+    </model>
+
+    <include>
+      <pose>0 -5 0 0 0 0</pose>
+      <uri>model://table_dining</uri>
+    </include>
+  
+    <include>
+      <pose>-4.5 -9 0 0 0 1.57</pose>
+      <uri>model://bookshelf_large</uri>
+    </include>
+
+    <model name="mesita_cristal">
+    <include>
+      <pose>-1.5 -7.5 0 0 0 1.57</pose>
+      <uri>model://coffee_table_1</uri>
+    </include>
+    </model>
+
+    <include>
+      <pose>-1.5 -2.5 0.189 0 0 0</pose>
+      <uri>model://human_female_1</uri>
+    </include>
+
+    <model name="bote_azul">
+    <include>
+      <pose>0 0 0.189 0 0 0</pose>
+      <uri>model://blue_bin_cuboid</uri>
+    </include>
+    </model>
+
+  </world>
+</sdf>

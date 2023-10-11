@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Control del experimento</title>
+
+  <link rel="stylesheet" href="../css/menu.css">
+  <link rel="stylesheet" href="../css/controls.css">
+  <link rel="stylesheet" href="../css/affective_slider.css">
+  <link rel="stylesheet" href="../css/control_interface.css">
+  <link rel="stylesheet" href="../css/card_eval.css">
+  <link rel="stylesheet" href="../css/range_double.css">
+  <link rel="stylesheet" href="../css/control_connect.css">
+
+  <!-- <link rel="stylesheet" href="../css/element_graphic.css">
+  <link rel="stylesheet" href="../css/phylogenetic_tree.css"> -->
+
+  <!-- Insert this line above script imports  -->
+  <script>
+    if (typeof module === "object") {
+      window.module = module;
+      module = undefined;
+    }
+  </script>
+
+  <script>
+    const zoomPlugin = require('chartjs-plugin-zoom');
+    const rosnodejs = require("rosnodejs");
+    const Chart = require("chart.js");
+    const fs = require("fs");
+    const randomColor = require('randomcolor');
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+    const homedir = require('os').homedir();
+    const serialPort = require('serialport').SerialPort;
+    const Mutex = require('async-mutex').Mutex;
+    const Plotly = require('plotly.js-dist-min')
+
+    Chart.register(zoomPlugin);
+
+    //iniciamos el nodo de ros
+    function init_ROS() {
+      return new Promise((resolve, reject) => {
+        rosnodejs.initNode("GUI").then((rosNode) => {
+          rosnodejs.log.info("Nodo GUI creado con exito");
+          resolve();
+        }).catch((e) => {
+          console.error("No se pudo crear el nodo ROS: " + e);
+          alert("Sin conexion con la red ROS: " + e);
+          reject();
+        });
+      });
+    }
+    init_ROS();
+
+    //se importan los mensajes ros
+    const user_interaction = rosnodejs.require("user_interaction").srv;
+    const user_interaction_msg = rosnodejs.require("user_interaction").msg;
+    const neurocontroller_database = rosnodejs.require('neurocontroller_database').srv;
+    const emotion_classification = rosnodejs.require('emotion_classification').srv;
+    const eeg_signal_acquisition = rosnodejs.require('eeg_signal_acquisition').srv;
+    const experiment_control_interfaces = rosnodejs.require('experiment_control_interfaces').srv;
+    const arlo_controller_dmaking = rosnodejs.require('arlo_controller_dmaking').srv;
+    const emotion_evocation_protocol = rosnodejs.require("emotion_evocation_protocol").srv;
+
+    let dataset_chartjs = { data: [], label: "", pointBackgroundColor: [randomColor()] };
+
+    //controla que frentes han sido cargados
+    var ids_pareto_fronts = [];
+    //historia de los experimentos, guarda info para saber que datos usar
+    var history_train = []
+    var history_predict = []
+    var count_samples = 0;//conteo de muestras
+    var train_threshold_batch = 1;
+    var predict_threshold_batch = 1;
+    // var mode_bci = "predict";
+
+    // var population_selected;
+    var color_success = "green";
+    var color_error = "red";
+    var color_warning = "yellow";
+    var color_sequence = "rgba(0, 145, 212, 0.295)";
+    var color_point_sel = "blue";
+    var color_ind = "green"
+
+    var root_dir = homedir + "/catkin_ws/src/neurocontroller_database/database";
+  </script>
+
+  <!-- Insert this line after script imports -->
+  <script>
+    if (window.module) module = window.module;
+  </script>
+</head>
+
+<body>
+  <!-- <div id="control_user">
+  </div> -->
+
+  <div id="control_user">
+    <!----------------- Controles de usuario ---------------------------->
+    <div id="container_user">
+      <div>
+        <input type="button" value="Cargar" id="btn_start_experimento" class="btn_aspect">
+        <!-- <input type="button" value="Cargar" id="btn_load_experimento" class="btn_aspect"> -->
+      </div>
+
+      <!-- inicio del experimento -->
+      <div>
+        <input type="radio" name="type_load" id="rad_is_start" checked>
+        <label for="rad_is_start">Iniciar</label>
+
+        <!-- <input type="radio" name="type_load" id="rad_is_test_interface">
+        <label for="rad_is_test_interface">Prueba de interfaz</label> -->
+
+        <input type="radio" name="type_load" id="rad_is_test">
+        <label for="rad_is_test">Prueba</label>
+
+        <input type="radio" name="type_load" id="rad_is_protocol">
+        <label for="rad_is_protocol">Protocolo</label>
+
+      </div>
+      <div id="container_extend_search">
+        <!-- <label for="extend_search">extender búsqueda</label>
+        <input type="checkbox" name="extend_search" id="check_extend_search"> -->
+      </div>
+      <div>
+        <label for="intro_vid">video introductorio</label>
+        <input type="checkbox" name="intro_vid" id="check_intro_vid">
+      </div>
+      <div>
+        <label for="id_pareto_load">Frente de pareto</label>
+        <input type="text" id="id_pareto_load" value="optimized-10">
+      </div>
+
+      <div>
+        <label for="">Individuos</label>
+        <input type="text" id="individuals_str" value="[20,35,40, 50]">
+        <label for="auto_inds">Automático</label>
+        <input type="checkbox" name="auto_inds" id="check_auto_inds" checked>
+      </div>
+
+    </div>
+
+
+    <!---------------------- connect to board -->
+    <div id="container_connect">
+      <!-- control de usuarios -->
+      <div id="">
+        <div>
+          <label for="sel_user">Usuario: </label>
+          <select name="sel_user" id="actual_user"></select>
+        </div>
+
+        <div>
+          <label for="add_user">Nuevo usuario</label><br>
+          <input type="text" name="add_user" id="new_user">
+        </div>
+      </div>
+
+      <!-- conexión con el puerto -->
+      <div id="container_port">
+        <label for="port_list">Seleccionar puerto</label>
+        <br>
+        <select name="port_list" id="port_list">
+          <option value="simulacion">Simulación</option>
+        </select>
+      </div>
+
+      <div id="container_update"></div>
+      <div id="conatiner_controls"></div>
+
+      <!-- indicadores de actividad -->
+      <div id="indicators_container">
+        <div class="indicator_container">
+          <!-- la clase=init indica que el campo se ha activado y css cambia el estilo -->
+          <div class="indicator">
+            <div id="connected" class="stop"></div>
+          </div>
+          <label for="connected">Conectado</label>
+        </div>
+
+        <div class="indicator_container">
+          <div class="indicator">
+            <div id="transmit" class="stop"></div>
+          </div>
+          <label for="transmit">Transmitiendo</label>
+        </div>
+
+        <div class="indicator_container">
+          <div class="indicator">
+            <div id="training" class="stop"></div>
+          </div>
+          <label for="training">Entrenando</label>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+
+  <div id="container_graph_realtime">
+    <div id="container_left">
+
+      <!----------------- Controles de usuario ---------------------------->
+      <div id="container_user_info">
+        <div class="info">
+          <label for="selected_user">Usuario:</label>
+          <div id="selected_user"></div>
+        </div>
+
+        <div class="info">
+          <label for="id_pareto_front">ID de la población:</label>
+          <div id="id_pareto_front"></div>
+        </div>
+
+        <div class="info">
+          <label for="num_ind">Individuo seleccionado:</label>
+          <div id="num_ind"></div>
+        </div>
+
+        <div class="info">
+          <label for="id_signal">ID de las señales:</label>
+          <div id="id_signal"></div>
+        </div>
+
+        <div class="info">
+          <label>Modelo emocional</label>
+          <div id="id_emotion_model"></div>
+        </div>
+
+      </div>
+
+      <!--------------------------------- info del estado actual ---------------------------------------->
+      <div id="container_info">
+
+        <div id="container_emotions">
+          <label>Hay 4 clases de emociones</label>
+          <ul>
+            <li>Clase 0: feliz-emocionado</li>
+            <li>Clase 1: molesto-disgustado</li>
+            <li>Clase 2: triste-depresivo</li>
+            <li>Clase 3: calmado-relajado</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- entradas de los parámetros del sistema -->
+      <div id="param_system">
+        <!-- +++++++++++ controles preprocesamiento ++++++++++++++ -->
+        <!------------------------------------------------------->
+        <button class="menu_item" value="container_preprocessing">Preprocessing</button>
+        <div id="container_preprocessing" class="container_menu selected_menu">
+          <!-- filtro para eliminar el ruido-->
+          <div>
+            <label class="name_control">Eliminar ruido</label><br>
+            <input type="checkbox" id="do_erase_noise">
+          </div>
+
+          <!-- filtro para extraer las frecuencias cerebrales -->
+          <div>
+            <label class="name_control">Filtro paso banda</label><br>
+            <input type="checkbox" id="do_bandpass"><br>
+          </div>
+
+          <!-- eliminar la tendencia -->
+          <div>
+            <label class="name_control">Eliminar tendencia</label><br>
+            <input type="checkbox" id="do_detrend"><br>
+          </div>
+
+          <!-- referencia eeg -->
+          <div>
+            <label class="name_control">Referencia eeg</label><br>
+            <input type="checkbox" name="ref_eeg" id="do_reference_eeg"><br>
+          </div>
+
+          <div>
+            <label class="name_control">Referencia eeg promediada</label><br>
+            <input type="checkbox" name="ref_eeg_2" id="do_reference_eeg_common"><br>
+          </div>
+
+          <!-- guardado de las señales preprocesadas -->
+          <div>
+            <label class="name_control">Guardar señales preprocesadas</label><br>
+            <input type="checkbox" id="do_save"><br>
+          </div>
+
+          <div>
+            <label class="name_control">Rango de frecuencias</label>
+            <div>
+              <label for="freq_ini">Inicio</label>
+              <input type="number" id="freq_ini"><br>
+              <label for="freq_end">Final</label>
+              <input type="number" id="freq_end">
+            </div>
+          </div>
+
+          <!-- orden del filtro -->
+          <div>
+            <label for="order" class="name_control">Orden del filtro</label><br>
+            <input type="number" id="filter_order">
+          </div>
+
+        </div>
+
+
+        <!-------------- Controles de las emociones ---------------------->
+        <!-- --------------------------------------------- -->
+        <button class="menu_item" value="container_control_emotions">Emociones</button>
+        <div id="container_control_emotions" class="container_menu selected_menu">
+          <!----- control del entrenamiento ----->
+          <div id="controls_train">
+            <label class="name_control">Control entrenamiento</label><br>
+
+            <label for="">Numero de repeticiones (k)</label><br>
+            <input type="number" id="num_rep" value="4"><br>
+
+            <label for="">Número de particiones (validación cruzada)</label><br>
+            <input type="number" id="num_fold" value="5"><br>
+
+            <label for="num_epoch">Número de épocas</label> <br>
+            <input type="number" id="num_epoch" value="150"><br>
+
+            <label for="">Tolerancia</label><br>
+            <input type="number" id="tolerance" value="3"><br>
+
+            <label for="">Tamaño de lote</label><br>
+            <input type="number" id="batch_size" value="32"><br>
+
+            <label id="window_samples">Tamaño de ventana</label><br>
+            <input type="number" id="in_window_size">
+
+            <div id="container_stride">
+              <label>Num desplazamiento</label><br>
+              <input type="number" id="stride"><br>
+              <label>Igual al tamaño de ventana</label>
+              <input type="checkbox" id="is_same_window">
+            </div>
+
+          </div>
+
+          <!-- cargar modelo emocional -->
+          <div id="container_load_emo">
+            <label class="name_control">Cargar modelo</label><br>
+
+            <label for="emotion_model_name"> Seleccionar modelo</label>
+            <select id="emotion_model_name">
+              <option disabled selected value>selecciona un modelo</option>
+              <option value="DeepConvNet">DeepConvNet</option>
+              <option value="EEGNet">EEGNet</option>
+              <option value="ShallowConvNet">ShallowConvNet</option>
+            </select>
+            <br><br>
+            <div id="container_model_id">
+              <label for="emotion_model_id">ID instancia</label>
+              <br>
+              <select id="emotion_model_id"></select>
+            </div>
+            <div>
+              <label for="emotion_model_k">Número de repetición (k)</label>
+              <br>
+              <input type="number" id="emotion_model_k" value=1>
+              <br>
+
+              <label for="emotion_model_fold">Número de partición (fold)</label>
+              <br>
+              <input type="number" id="emotion_model_fold" value=1>
+            </div>
+            <button id="btn_load_model">Cargar</button>
+          </div>
+          <br>
+
+          <!------- Crear nueva red neuronal --------->
+          <div id="container_new_emo">
+            <label class="name_control">Nuevo modelo</label><br>
+            <select name="model_emotion" id="model_emotion">
+              <option value="DeepConvNet" selected>DeepConvNet</option>
+              <option value="EEGNet">EEGNet</option>
+              <option value="ShallowConvNet">ShallowConvNet</option>
+            </select>
+
+            <div id="container_param_cnn">
+              <!-- entradas para una nueva cnn -->
+              <div id="container_field_cnn"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- +++++++++++ controles optimización ++++++++++++++ -->
+        <!------------------------------------------------------->
+        <button class="menu_item" value="container_optimization">Optimizador</button>
+        <div id="container_optimization" class="container_menu selected_menu">
+
+          <!-- <div>
+            <label for="">Número de individuos por frente</label><br>
+            <input type="number" id="num_ind_front" value="7"><br>
+          </div>
+
+          <div>
+            <label for="">Umbral de frentes de búsqueda</label><br>
+            <input type="number" id="threshold_front" value="5"><br>
+          </div> -->
+
+        </div>
+
+        <!-- +++++++++++++++ control neurocontrolador ++++++++++++++++ -->
+        <!-- -------------------------------------------------------- -->
+        <button class="menu_item" value="container_neurocontroller">Neurocontrolador</button>
+        <!----------------------- Arquitectura de la ann --------------->
+        <div id="container_neurocontroller" class="container_menu selected_menu"> </div>
+
+        <!-------------- Controles visuales ---------------------->
+        <!-- --------------------------------------------- -->
+        <button class="menu_item" value="container_visual">Visualización</button>
+        <div id="container_visual" class="container_menu selected_menu">
+          <div id="container_num_visual"></div>
+
+          <button id="btn_effect_win">Abrir ventana de efectos visuales</button><br>
+
+          <div id="container_mode"></div>
+
+          <div id="container_test"></div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- -------------------------------------------- -->
+    <!-- -------------------------------------------- -->
+    <!-- -------------------------------------------- -->
+    <!---------------- CONTENIDO CENTRAL---------------->
+    <!-- -------------------------------------------- -->
+    <!-- -------------------------------------------- -->
+    <!-- -------------------------------------------- -->
+
+    <div id="container_right">
+      <!-- menú de las diferentes ventanas -->
+      <div>
+        <button id="btn_graph_eeg">Series de tiempo</button>
+        <button id="btn_preference_model">Predicciones</button>
+        <button id="btn_graph_all_fronts">Todos los frentes</button>
+        <button id="btn_eval_ann">Evaluaciones</button>
+      </div>
+
+      <!-- contenedor de la gráfica -->
+      <div id="container_graph_view">
+        <!---------- monitor ---------->
+        <div id="container_monitor"></div>
+        <div id="container_dataset">
+          <div>
+            <h1>Modo</h1>
+            <label for="">Online</label>
+            <input type="radio" name="mode" value="online" onchange="change_mode('online')">
+            <label for="">Dataset</label>
+            <input type="radio" name="mode" value="dataset" onchange="change_mode('dataset')">
+          </div>
+
+          <!-- menu de carga de los datos -->
+          <div id="container_load_data">
+            <!-- nombre de usuario -->
+            <div>
+              <label for="user">Nombre de usuario</label>
+              <select name="user" id="sel_user_name"></select>
+            </div>
+            <!-- tipo de experimento -->
+            <div>
+              <label for="type_exp">Nombre de usuario</label>
+              <select name="type_exp" id="sel_type_exp">
+                <option value="protocol">protocolo</option>
+                <option value="optimized-">optimizado</option>
+              </select>
+            </div>
+            <!-- id_experimenrt -->
+            <div>
+              <label for="id_exp">ID del experimento</label>
+              <select name="id_exp" id="sel_id_experiment"></select>
+            </div>
+            <!-- num_ind -->
+            <div>
+              <label for="n_ind">Num individuo</label>
+              <select name="n_ind" id="sel_num_ind"></select>
+            </div>
+            <!-- id_eeg_signal -->
+            <div>
+              <label for="id_signal">ID señales</label>
+              <select name="id_signal" id="sel_id_eeg_signal"></select>
+            </div>
+          </div>
+          <button id="btn_load_dataset">Cargar</button>
+          <button id="clean_signals">Borrar</button>
+        </div>
+        <div id="container_real_time"></div>
+      </div>
+
+      <!-- ------------------------------------- -->
+      <!-- GRÁFICA DE LAS EVALUACIONES EMOCIONALES -->
+      <!-- ---------------------------------------- -->
+      <div id="container_preference_model">
+        <!-- botones -->
+        <div>
+          <div id="prediction_user"></div>
+          <div id="predictions_select"></div>
+          <div>
+            <input type="radio" id="rad_bci" name="rad">
+            <label for="rad_bci">BCI</label>
+
+            <input type="radio" id="rad_train" name="rad" checked>
+            <label for="rad_train">Entrenado</label>
+          </div>
+          <button id="btn_load_pred">Cargar</button>
+        </div>
+
+        <!-- grafica de predicción -->
+        <div>
+          <canvas id="russell_evaluations"></canvas>
+        </div>
+        <div id="container_btn">
+          <h3>Control de visualización</h3>
+          <button id="btn_show_all">Mostrar todo</button>
+          <button id="btn_hide_all">Ocultar todo</button>
+          <button id="btn_erase_all">Borrar todo</button>
+        </div>
+
+
+
+        <div id="container_eval">
+          <div id="container_evaluations"></div>
+        </div>
+      </div>
+
+      <!-- ---------------------------  -->
+      <!-- ---------------------------  -->
+      <!-- GRÁFICA DE TODOS LOS FRENTES -->
+      <!-- ---------------------------  -->
+      <!-- ---------------------------  -->
+      <div id="container_all_fronts">
+        <div id="graph_3d"></div>
+
+        <div>
+          <input type="checkbox" id="is_lines">
+          <label for="is_lines">Lineas</label>
+
+          <input type="checkbox" id="is_mesh">
+          <label for="is_mesh">Malla</label>
+
+          <input type="checkbox" id="is_sel">
+          <label for="is_sel">Seleccionados</label>
+
+          <button id="btn_show" value="show">Ocultar</button>
+          <button id="btn_update_pred">Actualizar gráfica</button>
+        </div>
+        <div id="range_fronts">
+        </div>
+
+      </div>
+
+      <!-- ---------------------  -->
+      <!-- ---------------------  -->
+      <!-- EVALUACIONES DE LA ANN -->
+      <!-- ---------------------  -->
+      <!-- ---------------------  -->
+      <div id="container_eval_ann">
+        <div id="container_selects">
+
+          <select id="sel_eval_user_name"></select>
+          <select id="sel_eval_model_name"></select>
+          <select id="sel_eval_id_model"></select>
+          <select id="sel_eval_rep"></select>
+          <select id="sel_eval_fold"></select>
+          <button id="btn_load_eval">Cargar</button>
+          <button id="btn_update_graph">Actualizar gráfica 3D de usaurio</button>
+        </div>
+
+        <!-- contenedor de las evaluaciones -->
+        <div id="container_cards"> </div>
+
+      </div>
+
+      <!-- DISTRIBUCIÓN DE LAS CLASES -->
+      <!-- <div id="distribution_class">
+        <div>
+          <div id="graph_pred"></div>
+        </div>
+      </div> -->
+    </div>
+
+  </div>
+
+
+
+  <div id="container_phylo_tree"></div>
+
+
+
+  <script src="../scripts/element_graphic.js"></script>
+  <script src="../scripts/ROS_functions.js"></script>
+  <script src="../scripts/control_user.js"></script>
+  <script src="../scripts/connect_board.js"></script>
+  <script src="../scripts/graph_eeg_signals.js"></script>
+  <script src="../scripts/control_emotions.js"></script>
+  <script src="../scripts/control_preprocessing.js"></script>
+  <script src="../scripts/control_neuro.js"></script>
+  <script src="../scripts/control_load_signal.js"></script>
+  <script src="../scripts/control_optimization.js"></script>
+  <script src="../scripts/control_visual.js"></script>
+  <script src="../scripts/evaluation_ann.js"></script>
+  <script src="../scripts/graph_pareto_fronts.js"></script>
+  <script src="../scripts/predictions_graph.js"></script>
+
+
+  <!-- <script src="../scripts/phylogenetic_tree.js"></script> -->
+
+
+  <script>
+
+    load_users().then(() => {
+
+      load_param("user_name").then((user_name) => {
+        let sel_user = document.getElementById("actual_user");
+
+        if (user_name == undefined || user_name == "") {
+          sel_user.value = "";
+          return;
+        }
+
+        sel_user.value = user_name;
+
+        // se crea el evento
+        let event_user = new Event("create_users");
+        sel_user.dispatchEvent(event_user);
+      }).catch((e) => {
+        console.error(e);
+        alert("Error al actualizar el usuario");
+      });
+    });
+
+
+  </script>
+</body>
+
+</html>

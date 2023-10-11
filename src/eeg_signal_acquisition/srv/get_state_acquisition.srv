@@ -1,0 +1,7 @@
+---
+#indica si es stop o start
+string state
+string id_eeg_signal
+int32 num_ind
+
+bool connected #si esta conectado a una tarjeta

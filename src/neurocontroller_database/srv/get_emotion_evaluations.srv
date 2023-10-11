@@ -1,0 +1,16 @@
+
+string user_name
+
+string id_emotion_model
+string model_name
+int32 num_rep
+int32 num_fold
+
+
+string id_pareto_front
+int32 num_ind
+int32 storage_pos
+
+string type_evaluation
+---
+string evaluations

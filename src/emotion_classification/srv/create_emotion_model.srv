@@ -1,0 +1,15 @@
+string model_name
+string user_name
+
+int32 num_classes
+int32 num_channels
+int32 num_samples 
+
+string type_dropout
+float64 dropout
+int32 kernel_size
+int32 F1
+int32 D
+int32 F2
+---
+string id_emotion_model

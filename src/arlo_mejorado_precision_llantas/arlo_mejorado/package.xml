@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package>
+  <name>arlo_mejorado</name>
+  <version>1.0.0</version>
+  <description>An example of how to build a differential drive in Gazebo with ROS support</description>
+
+  <maintainer email="tonio.jaimes@gmail.com">Antonio</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>gazebo_ros</run_depend>
+
+</package>

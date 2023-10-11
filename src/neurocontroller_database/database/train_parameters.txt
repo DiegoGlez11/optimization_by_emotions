@@ -1,0 +1,1 @@
+{"model_name":"DeepConvNet","k_repetitions":4,"size_fold":5,"window_size":128,"stride":128,"num_epoch":150,"batch_size":32,"tolerance":14,"control":"","num_fold":5,"num_rep":4}

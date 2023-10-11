@@ -1,0 +1,14 @@
+string user_name
+string id_pareto_front
+int32 num_ind
+int32 storage_pos
+
+string label
+
+float64[] y_true
+float64[] y_pred
+
+float64[] predictions
+int32 shape_pred #tamaño de una predicción
+int32 num_preds #num de predicciones
+---

@@ -1,0 +1,576 @@
+<sdf version='1.7'>
+  <world name='default'>
+    <gui fullscreen='0'>
+
+
+      <camera name='user_camera'>
+        <!-- Tres cuartos -->
+        <!-- <pose>-9.87545 -17.7691 10.1461 0 0.594224 0.76527</pose> -->
+        <!-- Vista perpendicular -->
+
+        <!-- <pose>-0.022 -5.16 22.0065 3.14159 1.57079 3.14159</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type> -->
+
+        <!-- <pose>-3 -13 10 0 1.57 0</pose> -->
+
+        <track_visual>
+          <name>arlo_mejorado_precision_llantas</name>
+          <static>true</static>
+          <use_model_frame>true</use_model_frame>
+          <xyz>-3.2 0 1</xyz>
+          <!-- <inherit_orientation>true</inherit_orientation> -->
+          <!-- <min_dist>4</min_dist>
+          <max_dist>7</max_dist> -->
+          <inherit_yaw>true</inherit_yaw>
+
+        </track_visual>
+      </camera>
+    </gui>
+
+
+    <light name="sun" type="directional">
+      <cast_shadows>0</cast_shadows>
+      <pose>0 0 10 0 -0 0</pose>
+      <diffuse>0.6 0.6 0.6 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>0.4833 0.0966 -0.87</direction>
+    </light>
+
+
+    <light name="luz_cocina" type="spot">
+      <cast_shadows>1</cast_shadows>
+      <pose>-2.5 3 2.065 0 0</pose>
+      <diffuse>0.78 0.665 0.52 1</diffuse>
+      <specular>0.0980392 0.0980392 0.0980392 1</specular>
+      <attenuation>
+        <range>4</range>
+        <constant>0.1</constant>
+        <linear>0.2</linear>
+        <quadratic>0.4</quadratic>
+      </attenuation>
+      <direction>0 0 -1</direction>
+      <spot>
+        <inner_angle>0.1</inner_angle>
+        <outer_angle>1.6</outer_angle>
+        <falloff>1</falloff>
+      </spot>
+    </light>
+
+    <light name="luz_campana_1" type="spot">
+      <pose>-4.83 3.0 1.55 0 0</pose>
+      <diffuse>0.78 0.665 0.52 1</diffuse>
+      <specular>0.0980392 0.0980392 0.0980392 1</specular>
+      <attenuation>
+        <range>2</range>
+        <constant>0.1</constant>
+        <linear>0.01</linear>
+        <quadratic>0.7</quadratic>
+      </attenuation>
+      <cast_shadows>1</cast_shadows>
+      <direction>0 0 -1</direction>
+      <spot>
+        <inner_angle>0.1</inner_angle>
+        <outer_angle>1</outer_angle>
+        <falloff>1.5</falloff>
+      </spot>
+    </light>
+
+    <light name="luz_campana_2" type="spot">
+      <pose>-4.83 3.5 1.55 0 0</pose>
+      <diffuse>0.78 0.665 0.52 1</diffuse>
+      <specular>0.0980392 0.0980392 0.0980392 1</specular>
+      <attenuation>
+        <range>2</range>
+        <constant>0.1</constant>
+        <linear>0.01</linear>
+        <quadratic>0.7</quadratic>
+      </attenuation>
+      <cast_shadows>1</cast_shadows>
+      <direction>0 0 -1</direction>
+      <spot>
+        <inner_angle>0.1</inner_angle>
+        <outer_angle>1</outer_angle>
+        <falloff>1.5</falloff>
+      </spot>
+    </light>
+
+    <light name="luz_comedor" type="spot">
+      <cast_shadows>1</cast_shadows>
+      <pose>2.5 1.5 2.7 0 0</pose>
+      <diffuse>0.78 0.665 0.52 1</diffuse>
+      <specular>0.0980392 0.0980392 0.0980392 1</specular>
+      <attenuation>
+        <range>4</range>
+        <constant>0.2</constant>
+        <linear>0.1</linear>
+        <quadratic>0.3</quadratic>
+      </attenuation>
+      <direction>0 0 -1</direction>
+      <spot>
+        <inner_angle>0.6</inner_angle>
+        <outer_angle>1.6</outer_angle>
+        <falloff>1</falloff>
+      </spot>
+    </light>
+
+
+    <light name="luz_sala" type="point">
+      <cast_shadows>1</cast_shadows>
+      <pose>1 -5 4 0 -0 0</pose>
+      <diffuse>0.776 0.71 0.63 1</diffuse>
+      <specular>0.0980392 0.0980392 0.0980392 1</specular>
+      <attenuation>
+        <range>15</range>
+        <constant>0.01</constant>
+        <linear>0.1</linear>
+        <quadratic>0.05</quadratic>
+      </attenuation>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <light name="luz_recamara" type="point">
+      <pose>-1 -14 3 0 0 0</pose>
+      <diffuse>0.78 0.665 0.52 1</diffuse>
+      <specular>0.0980392 0.0980392 0.0980392 1</specular>
+      <attenuation>
+        <range>20</range>
+        <constant>0.01</constant>
+        <linear>0.1</linear>
+        <quadratic>0.1</quadratic>
+      </attenuation>
+      <cast_shadows>1</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <light name="luz_lampara_buro" type="point">
+      <pose>5.11 -12.25 1.3 0 0 0</pose>
+      <diffuse>0.78 0.665 0.52 1</diffuse>
+      <specular>0.0980392 0.0980392 0.0980392 1</specular>
+      <attenuation>
+        <range>10</range>
+        <constant>2</constant>
+        <linear>0.9</linear>
+        <quadratic>0.9</quadratic>
+      </attenuation>
+      <cast_shadows>1</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+    <light name="luz_lampara_recamara_2" type="point">
+      <pose>5.3 -15.6 1.9 0 0 0</pose>
+      <transparency>1</transparency>
+      <diffuse>0.776 0.71 0.63 1</diffuse>
+      <specular>0.0980392 0.0980392 0.0980392 1</specular>
+      <attenuation>
+        <range>2</range>
+        <constant>2</constant>
+        <linear>0.7</linear>
+        <quadratic>0.7</quadratic>
+      </attenuation>
+      <cast_shadows>1</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://cuarto</uri>
+    </include>
+
+    <!-- <model name="curling_target">
+    <include>
+      <pose>0 0 0.025 0 0 0</pose>
+      <uri>model://curling_target</uri>
+    </include>
+    </model> -->
+
+    <model name='barra_cocina'>
+      <include>
+        <pose>-3.81 3.5 0.027 0 0 0</pose>
+        <uri>model://aws_robomaker_residential_KitchenCabinet_01</uri>
+      </include>
+    </model>
+
+    <model name='hornillas'>
+      <include>
+        <uri>model://aws_robomaker_residential_CookingBench_01</uri>
+      </include>
+      <static>true</static>
+      <pose>-4.8 3.25 0.92 0 0 0</pose>
+    </model>
+
+    <model name='campana_cocina'>
+      <include>
+        <uri>model://aws_robomaker_residential_Rangehood_01</uri>
+      </include>
+      <pose>-4.83 3.25 1.4 0 0 3.14159</pose>
+    </model>
+
+    <model name='lampara_cocina'>
+      <include>
+        <uri>model://Kitchen_Pendant_Lamp</uri>
+      </include>
+      <pose>-5.7038 -0.8345 3.5 0 0 0</pose>
+    </model>
+
+    <model name='basurero'>
+      <include>
+        <uri>model://Hefty_Waste_Basket_Decorative_Bronze_85_liter</uri>
+      </include>
+      <pose>-2.25 4.8 0.02 0 0 0</pose>
+      <static>true</static>
+    </model>
+
+    <model name='refrigerador'>
+      <include>
+        <uri>model://aws_robomaker_residential_Refrigerator_01</uri>
+      </include>
+      <pose>-1.4 4.69 0.02 0 0 0</pose>
+    </model>
+
+    <model name='platos'>
+      <include>
+        <uri>model://aws_robomaker_residential_Tableware_01</uri>
+      </include>
+      <static>true</static>
+      <pose>-3.25 4.8 0.91 0 0 0</pose>
+    </model>
+
+    <model name='cafetera'>
+      <include>
+        <uri>model://coffee_machine</uri>
+      </include>
+      <pose>-4.9 4.6 0.925 0 0 0</pose>
+    </model>
+
+    <model name='juego_cuchillos'>
+      <include>
+        <uri>model://JA_Henckels_International_Premio_Cutlery_Block_Set_14Piece</uri>
+      </include>
+      <static>true</static>
+      <pose>-4.84 2.3 0.905 0 0 1.5708</pose>
+    </model>
+
+    <model name='taza_1'>
+      <include>
+        <uri>model://cup_green</uri>
+      </include>
+      <static>true</static>
+      <pose>-4.63 4.30 0.92 0 0 0</pose>
+    </model>
+
+    <model name='taza_2'>
+      <include>
+        <uri>model://cup_yellow</uri>
+      </include>
+      <pose>-4.77 4.64 1.01 0 0 0</pose>
+    </model>
+
+    <model name='cucharas'>
+      <include>
+        <uri>model://aws_robomaker_residential_KitchenUtensils_01</uri>
+      </include>
+      <pose>-4.85 5.12 1.25 0 0 1.5708</pose>
+    </model>
+
+    <model name='consola_tv'>
+      <include>
+        <uri>model://aws_robomaker_residential_TVCabinet_01</uri>
+      </include>
+      <pose>5.07 -5.5 0.02 0 0 3.14159</pose>
+      <static>false</static>
+    </model>
+
+    <model name='tv'>
+      <include>
+        <uri>model://aws_robomaker_residential_TV_02</uri>
+      </include>
+      <pose>5.175 -5.5 0.55 0 0 0</pose>
+    </model>
+
+    <model name='puerta'>
+      <include>
+        <uri>model://aws_robomaker_residential_Door_01</uri>
+      </include>
+      <pose>3 5.16 0.02 0 0 0</pose>
+    </model>
+
+    <model name='ventana_cocina'>
+      <include>
+        <uri>model://aws_robomaker_residential_RoomWindow_01</uri>
+      </include>
+      <pose>-3.425 5.145 0.67 0 0 1.5708</pose>
+    </model>
+
+    <model name='ventana_sala_1'>
+      <include>
+        <uri>model://aws_robomaker_residential_RoomWindow_01</uri>
+      </include>
+      <pose>5.375 -2.5 0.67 0 0 0</pose>
+    </model>
+
+    <model name='ventana_sala_2'>
+      <include>
+        <uri>model://aws_robomaker_residential_RoomWindow_01</uri>
+      </include>
+      <pose>5.375 -8.5 0.67 0 0 0</pose>
+    </model>
+
+    <model name='puerta_recamara_1'>
+      <include>
+        <uri>model://aws_robomaker_residential_FoldingDoor_01</uri>
+      </include>
+      <pose>4.132 -10.75 0.02 0 0 1.5708</pose>
+    </model>
+
+    <model name='puerta_recamara_2'>
+      <include>
+        <uri>model://aws_robomaker_residential_FoldingDoor_01</uri>
+      </include>
+      <pose>-3.874 -10.75 0.02 0 0 1.5708</pose>
+    </model>
+
+    <model name='ventana_recamara_1'>
+      <include>
+        <uri>model://aws_robomaker_residential_RoomWindow_01</uri>
+      </include>
+      <pose>5.375 -14 0.68 0 0 0</pose>
+    </model>
+
+    <model name='cama'>
+      <include>
+        <uri>model://aws_robomaker_residential_Bed_01</uri>
+      </include>
+      <pose>4.35 -14 -0.1 0 0 -1.5708</pose>
+    </model>
+
+    <model name='buro'>
+      <include>
+        <uri>model://aws_robomaker_residential_NightStand_01</uri>
+      </include>
+      <pose>5.1 -12.25 0.027 0 0 -1.5708</pose>
+      <static>true</static>
+    </model>
+
+    <model name='lampara_buro_1'>
+      <include>
+        <uri>model://lamp_table_large</uri>
+      </include>
+      <pose>5.05 -12.34 0.713937 0 0 0</pose>
+      <static>true</static>
+    </model>
+
+    <model name='medicina_buro'>
+      <include>
+        <uri>model://Blackcurrant_Lutein</uri>
+      </include>
+      <static>true</static>
+      <pose>5.0 -12.5 0.712 0 0 0</pose>
+    </model>
+
+    <model name='lampara_recamara_1'>
+      <include>
+        <uri>model://aws_robomaker_residential_LightC_01</uri>
+      </include>
+      <pose>5.35 -12.25 1.8 0 0 1.5708</pose>
+    </model>
+
+    <model name='lampara_recamara_2'>
+      <include>
+        <uri>model://aws_robomaker_residential_LightC_01</uri>
+      </include>
+      <pose>5.3 -15.6 1.8 0 0 1.5708</pose>
+    </model>
+
+    <model name='mesa_redonda_vidrio'>
+      <include>
+        <uri>model://coffee_table_set_2</uri> <!--mesa redonda de vidrio-->
+      </include>
+      <pose>2.0 -5.5 0.025 0 0 0</pose>
+      <static>false</static>
+    </model>
+
+    <model name='lampara_mesa_vidrio'>
+      <include>
+        <uri>model://lamp_table_small</uri>
+      </include>
+      <pose>2.35 -5.48 0.5 0 0 0</pose>
+      <static>false</static>
+    </model>
+
+    <model name='sofa_verde_1'>
+      <include>
+        <uri>model://chair_set_2</uri>
+      </include>
+      <pose>1.5 -3.25 0.025 0 0 0</pose>
+    </model>
+
+    <!-- Frente a la TV -->
+    <model name='sofa_verde_2'>
+      <include>
+        <uri>model://sofa_set_2</uri>
+      </include>
+      <pose>0.1 -5.5 0.025 0 0 1.5708</pose>
+    </model>
+
+    <model name='mesita_sillon'>
+      <include>
+        <uri>model://side_table_4</uri>
+      </include>
+      <pose>0.25 -3.25 0.025 0 0 0</pose>
+      <static>false</static>
+    </model>
+
+    <model name="caja_grande_1">
+      <include>
+        <uri>model://Box_33x15</uri>
+        <static>false</static>
+      </include>
+      <pose>-2.1 -6.85 0.025 0 0 0</pose>
+    </model>
+
+    <model name="caja_grande_2">
+      <include>
+        <uri>model://Box_33x15</uri>
+        <static>false</static>
+      </include>
+      <pose>-1.75 -7 0.42 0 0 0</pose>
+      <!-- <static>false</static> -->
+    </model>
+
+    <model name="juguetero">
+      <include>
+        <uri>model://6_Cube_StorageE</uri>
+        <static>false</static>
+      </include>
+      <pose>-4.9 -3.0 0.025 0 0 -1.57</pose>
+      <!-- <static>false</static> -->
+    </model>
+
+    <model name='mesita_meta'>
+      <include>
+        <uri>model://side_table_4</uri>
+      </include>
+      <pose>-2.0 2.5 0.025 0 0 0</pose>
+      <static>false</static>
+    </model>
+
+    <model name='jarra_agua'>
+      <include>
+        <uri>model://Threshold_Porcelain_Pitcher_White</uri>
+      </include>
+      <pose>-1.9 2.365 0.5866 0 0 0</pose>
+    </model>
+
+    <model name='vaso_vidrio'>
+      <include>
+        <uri>model://cup_glass</uri>
+      </include>
+      <pose>-2.19 2.65 0.587 0 0 0</pose>
+      <static>false</static>
+    </model>
+
+    <model name='mesa_comedor'>
+      <include>
+        <uri>model://table_conference_3</uri>
+      </include>
+      <pose>2.5 1.5 0.025 0 0 3.14</pose>
+    </model>
+
+    <model name='retrato_1'>
+      <include>
+        <uri>model://picture_frame_large_1</uri>
+      </include>
+      <pose>5.366 0.5 1.3 0 0 3.14</pose>
+    </model>
+
+    <model name='retrato_2'>
+      <include>
+        <uri>model://picture_frame_large_2</uri>
+      </include>
+      <pose>5.366 2.5 1.3 0 0 3.14</pose>
+    </model>
+
+    <model name='plato_1'>
+      <include>
+        <uri>model://plate_1</uri>
+      </include>
+      <pose>2.79 2.25 0.765 0 0 3.14</pose>
+    </model>
+
+    <model name='plato_2'>
+      <include>
+        <uri>model://plate_1</uri>
+      </include>
+      <pose>2.21 2.25 0.765 0 0 3.14</pose>
+    </model>
+
+    <model name='plato_3'>
+      <include>
+        <uri>model://plate_1</uri>
+      </include>
+      <pose>2.79 0.75 0.765 0 0 3.14</pose>
+    </model>
+
+    <model name='plato_4'>
+      <include>
+        <uri>model://plate_1</uri>
+      </include>
+      <pose>2.21 0.75 0.765 0 0 3.14</pose>
+    </model>
+
+    <model name='botella_vino'>
+      <include>
+        <uri>model://bottle_red_wine</uri>
+      </include>
+      <pose>2.25 1.25 0.76 0 0 3.14</pose>
+    </model>
+
+    <model name='chico_sentado'>
+      <include>
+        <uri>model://child</uri>
+      </include>
+      <pose>-2.25 -1.9 0.025 0 0 -1.57</pose>
+    </model>
+
+    <model name='juguete_torres'>
+      <include>
+        <uri>model://TOWER_TUMBLING</uri>
+      </include>
+      <pose>-2.25 -2.35 0.025 0 0 -1.57</pose>
+    </model>
+
+    <model name='hombre'>
+      <include>
+        <uri>model://human_male_1_1_collision</uri>
+      </include>
+      <pose>1.0 -4 0.025 0 0 0</pose>
+    </model>
+
+    <model name='mujer'>
+      <include>
+        <uri>model://human_female_1_1_collision</uri>
+      </include>
+      <pose>-0.5 -9.3 0.06 0 0 3.1416</pose>
+    </model>
+
+    <model name='mujer_sentada'>
+      <include>
+        <uri>model://PatientFSit</uri>
+      </include>
+      <pose>4.4 -13.3 0.07 0 0 1.57</pose>
+    </model>
+
+
+  </world>
+</sdf>

@@ -1,0 +1,11 @@
+string weightsfile
+int32 num_ind
+int64 maxtime
+float64 touchthreshold
+---
+float64 time
+float64 dist2go
+float64 risk
+float64 damage
+float64 contactSpeed
+float64 energy

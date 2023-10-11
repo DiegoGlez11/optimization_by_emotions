@@ -1,0 +1,10 @@
+---
+int32 frequency_ini
+int32 frequency_end
+int32 filter_order
+bool remove_environment_noise
+bool perform_bandpass
+bool detrend
+bool reference_eeg
+bool reference_eeg_common
+bool is_save

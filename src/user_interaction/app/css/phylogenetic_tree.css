@@ -1,0 +1,41 @@
+#container_phylo_tree {
+    display: inline-flex;
+    border: 1px solid black;
+    background: rgba(124, 144, 255, 0.308);
+    width: 100%;
+    overflow: scroll;
+    margin: 20px 0;
+}
+
+.container_global {
+    display: inline-block;
+    height: fit-content;
+    margin: 0px 5px 0px 5px;
+}
+
+.node {
+    position: relative;
+    /* margin: 0 8px; */
+    padding: 2px 5px;
+    text-align: center;
+}
+
+.container_childs {
+    top: 0;
+    width: 100%;
+    display: inline-flex;
+}
+
+.container_parent {
+    width: 100%;
+    border: 1px solid black;
+    background: green;
+    margin: 1px 0 0 0;
+    cursor: pointer;
+}
+
+.line {
+    width: 100%;
+    /* margin: 2px 0 0 0; */
+    border-bottom: 2px solid black;
+}

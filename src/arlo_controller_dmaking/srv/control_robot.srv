@@ -1,0 +1,4 @@
+string control
+---
+bool is_driving
+int64 max_time

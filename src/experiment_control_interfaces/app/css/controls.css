@@ -1,0 +1,29 @@
+/* +++++++++++ botones de los controles desplegables ++++++++++++ */
+.menu_item {
+    display: flex;
+    background: rgb(124, 144, 255);
+    width: 100%;
+    height: 30px;
+    text-decoration: none;
+}
+
+.menu_item label {
+    left: 0;
+    transform: translate(50%, 20%);
+
+}
+
+.container_menu {
+    width: 100%;
+    padding: 5px 0 0 7px;
+}
+
+.selected_menu {
+    visibility: hidden;
+    height: 0;
+}
+
+/* Contenedor para mensajes dentro de un botón desplegable */
+.name_control {
+    background: rgb(150, 187, 255);
+}

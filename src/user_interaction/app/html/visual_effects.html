@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>' </title>
+
+    <link rel="stylesheet" href="../css/element_graphic.css">
+
+    <!-- Insert this line above script imports  -->
+    <!-- <script>
+        if (typeof module === "object") {
+            window.module = module;
+            module = undefined;
+        }
+    </script> -->
+
+    <script>
+        const rosnodejs = require("rosnodejs");
+        const { contextBridge, ipcRenderer } = require('electron');
+
+        // Register node with ROS master
+        function init_ROS() {
+            return new Promise((resolve, reject) => {
+                rosnodejs.initNode("visual_interfaces").then((rosNode) => {
+                    rosnodejs.log.info("Nodo creado con exito");
+                    resolve();
+                }).catch((e) => {
+                    console.error("No se pudo crear el nodo ROS: " + e);
+                    alert("Sin conexion con la red ROS: " + e);
+                    reject();
+                });
+            });
+        }
+        init_ROS();
+
+
+        const user_interaction = rosnodejs.require("user_interaction").srv;
+    </script>
+
+    <!-- Insert this line after script imports -->
+    <!-- <script>
+        if (window.module) module = window.module;
+    </script> -->
+</head>
+
+<body>
+
+    <div id="simulation_container">
+        <!-- controles de manejo del robot -->
+        <div class="not_user_interactdt">
+            <button id="ttt">aaaaa</button>
+            <div>
+                <button id="stop_r">stop</button>
+                <button id="adelante">Adelante</button>
+                <button id="atras">atras</button>
+                <button id="izq">izq</button>
+                <button id="der">der</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+
+        function color_simulation() {
+            rosnodejs.nh.advertiseService("change_color", "user_interaction/change_color", (req) => {
+                let sel_color = req.color;
+                let container = document.getElementById("simulation_container");
+
+
+                if (sel_color == "red") {
+                    container.style.visibility = "visible";
+                    container.style.background = "red";
+                }
+                if (sel_color == "green") {
+                    container.style.visibility = "visible";
+                    container.style.background = "green";
+                }
+                if (sel_color == "hide") {
+                    container.style.visibility = "hidden";
+                }
+
+                return true;
+            });
+        }
+        color_simulation();
+
+
+
+        function conect_robot() {
+            let del = document.getElementById("adelante");
+            let atras = document.getElementById("atras");
+            let izq = document.getElementById("izq");
+            let der = document.getElementById("der");
+            let stop = document.getElementById("stop_r");
+            const msg_p = { linear: { x: 0.0, y: 0.0, z: 0.0 }, angular: { x: 0.0, y: 0.0, z: 0.0 } };
+
+            let pub = rosnodejs.nh.advertise("/cmd_vel", "geometry_msgs/Twist");
+            del.onclick = () => {
+                let d = JSON.parse(JSON.stringify(msg_p));
+                d.linear.x = 0.4;
+                pub.publish(d);
+            }
+
+            atras.onclick = () => {
+                let p = JSON.parse(JSON.stringify(msg_p));
+                p.linear.x = -0.4;
+                pub.publish(p);
+            }
+
+            izq.onclick = () => {
+                let m = JSON.parse(JSON.stringify(msg_p));
+                m.angular.z = -0.4;
+                pub.publish(m);
+            }
+
+            der.onclick = () => {
+                let m = JSON.parse(JSON.stringify(msg_p));
+                m.angular.z = 0.4;
+                pub.publish(m);
+            }
+
+            stop.onclick = () => {
+                let m = JSON.parse(JSON.stringify(msg_p));
+                console.log(m);
+                pub.publish(m);
+            }
+
+        }
+        conect_robot();
+
+        // ipcRenderer.send("resize-me-please", { type_window: "visual_effects", width:window.screen.width });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+#Request
+string model_name
+string name_file
+---
+#Response
+int32 emotion_class

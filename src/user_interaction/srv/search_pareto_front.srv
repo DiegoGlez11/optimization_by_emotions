@@ -1,0 +1,6 @@
+string user_name
+float64[] reference_point
+string id_pareto_front
+int32 num_ind
+string storage_position
+---

@@ -1,0 +1,290 @@
+/* secciones de la interfaz */
+#container_pareto {
+  display: inline-flex;
+}
+
+#container_pareto {
+  margin: 10px 0 0 0;
+}
+
+
+/*+++++++ Tooltip ++++++++++*/
+.tooltip {
+  display: inline;
+  position: relative;
+  text-decoration: none;
+  top: 0px;
+  left: 4px;
+}
+
+.tooltip:hover:after {
+  background: #333;
+  background: rgba(0, 0, 0, .8);
+  border-radius: 5px;
+  top: -5px;
+  color: #fff;
+  content: attr(alt);
+  left: 105%;
+  padding: 5px 15px;
+  position: absolute;
+  z-index: 98;
+  width: 150px;
+}
+
+.tooltip:hover:before {
+  border: solid;
+  border-color: transparent black;
+  border-width: 6px 6px 6px 0;
+  bottom: 20px;
+  content: "";
+  left: 102%;
+  position: absolute;
+  z-index: 99;
+  top: 3px;
+}
+
+#container_graph {
+  position: relative;
+  display: inline-block;
+  height: fit-content;
+}
+
+/* monitor */
+#container_monitor {
+  border-bottom: 2px solid black;
+  position: relative;
+  margin: auto;
+  height: 150px;
+  width: 100%;
+}
+
+/* +++++++++++++++++++ */
+.id_pareto,
+.id_signal {
+  overflow-x: scroll;
+}
+
+
+#controls_train {
+  width: 100%;
+}
+
+
+
+
+#container_graph_preference {
+  position: relative;
+  width: auto;
+  padding: 20px;
+}
+
+/* contenedor preference graph */
+#container_graph_pareto {
+  width: 100%;
+  margin: 2px 5px 0 2px;
+}
+
+#container_metrics {
+  /* display: inline-block; */
+  position: relative;
+  width: 80%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#container_object_spce {
+  position: relative;
+  width: 100%;
+  /* padding: 25px; */
+}
+
+/* ventana de bloqueo de la gráfica */
+#window_block {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(158, 178, 194, 0.473);
+  left: 0;
+  top: 0;
+  visibility: hidden;
+}
+
+
+
+/* -------------------- */
+/* ventana de nuevos frentes */
+
+#window_new_fronts {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  visibility: hidden;
+}
+
+#window_new_front_container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#background_img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("../img/abstract2.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 95%;
+}
+
+#background_txt {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: fit-content;
+  font-size: 49px;
+  text-align: center;
+  font-family: 'Courier New, monospace';
+  color: white;
+}
+
+
+/* ----------------------- */
+
+
+#window_last_front {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  color: white;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  font-family: 'Courier New, monospace';
+  /* visibility: hidden; */
+
+  background-image: url("../img/abstract3.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#wrap_last_front {
+  position: relative;
+  width: fit-content;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+
+}
+
+
+
+
+
+
+
+
+
+#wrap_last_front h1 {
+  -webkit-text-stroke: 1.5px black;
+  font-size: 90px;
+  text-align: center;
+}
+
+#wrap_btn_last_front {
+  width: 100%;
+  height: fit-content;
+  margin: 70px 0 0 0;
+}
+
+#btn_last_front {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 40px;
+
+}
+
+
+
+/* <!-- HTML !-->
+<button class="button-80" role="button">Button 80</button> */
+
+/* CSS */
+.button-80 {
+  background: #fff;
+  backface-visibility: hidden;
+  border-radius: .375rem;
+  border-style: solid;
+  border-width: .125rem;
+  box-sizing: border-box;
+  color: #212121;
+  cursor: pointer;
+  display: inline-block;
+  font-family: Circular, Helvetica, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  line-height: 1.3;
+  padding: .875rem 1.125rem;
+  position: relative;
+  text-align: left;
+  text-decoration: none;
+  transform: translateZ(0) scale(1);
+  transition: transform .2s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button-80:not(:disabled):hover {
+  transform: scale(1.05);
+}
+
+.button-80:not(:disabled):hover:active {
+  transform: scale(1.05) translateY(.125rem);
+}
+
+.button-80:focus {
+  outline: 0 solid transparent;
+}
+
+.button-80:focus:before {
+  content: "";
+  left: calc(-1*.375rem);
+  pointer-events: none;
+  position: absolute;
+  top: calc(-1*.375rem);
+  transition: border-radius;
+  user-select: none;
+}
+
+.button-80:focus:not(:focus-visible) {
+  outline: 0 solid transparent;
+}
+
+.button-80:focus:not(:focus-visible):before {
+  border-width: 0;
+}
+
+.button-80:not(:disabled):active {
+  transform: translateY(.125rem);
+}
+
+
+
+
+
+/* others */
+#container_control {
+  display: inline-flex;
+  width: 100%;
+}

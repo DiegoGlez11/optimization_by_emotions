@@ -1,0 +1,3 @@
+---
+string id_eeg_signal
+int32 size_experiment

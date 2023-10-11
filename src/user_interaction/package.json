@@ -1,0 +1,22 @@
+{
+  "name": "user_interaction",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Diego Gonzalez Chavez",
+  "license": "ISC",
+  "description": "interfaz para que el tomador de decisiones interactue con los nuerocontroladores",
+  "dependencies": {
+    "chart.js": "^3.7.1",
+    "chartjs-plugin-zoom": "^1.2.1",
+    "electron": "^22.0.2",
+    "electron-renderify": "^0.0.2",
+    "plotly.js-dist-min": "^2.14.0",
+    "randomcolor": "^0.6.2",
+    "rosnodejs": "^3.1.0",
+    "serialport": "^10.4.0"
+  }
+}

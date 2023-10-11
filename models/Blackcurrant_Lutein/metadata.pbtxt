@@ -1,0 +1,39 @@
+model {
+  file: "model.sdf"
+}
+name: "Blackcurrant_Lutein"
+description: "Blackcurrant + Lutein"
+version: 1
+authors {
+  name: "Google"
+  email: "scanned-objects@google.com"
+}
+legal {
+  copyright: "Copyright 2020 Google LLC."
+  license: "Creative Commons Attribution 4.0 International"
+}
+annotations {
+  key: "brand"
+  value: "Jarrow Formulas"
+}
+annotations {
+  key: "gtin"
+  value: "790011120292"
+}
+annotations {
+  key: "mpn"
+  value: "790011120292"
+}
+annotations {
+  key: "sku"
+  value: "LUBLK"
+}
+compatibilities {
+  name: "Gazebo"
+  version {
+    major: 11
+  }
+}
+categories {
+  first: "Bottles and Cans and Cups"
+}

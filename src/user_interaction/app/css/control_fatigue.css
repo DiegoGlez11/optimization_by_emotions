@@ -1,0 +1,268 @@
+.fatigue_metric {
+    display: inline-block;
+    width: 67%;
+    height: 40%;
+    transform: translateY(-50%);
+}
+
+.container_metric_fatigue {
+    height: 120px;
+    width: 450px;
+}
+
+
+
+#btn_send_fatigue {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.btn_end {
+    background: rgb(236, 233, 231);
+    margin: 15px;
+    /* padding: 7px; */
+    font-size: 16px;
+}
+
+#btn_agreed {
+    background: rgb(158, 172, 216);
+}
+
+
+
+
+
+
+
+/* ----------------------- */
+/* botones de control*/
+
+
+
+
+/* ventana de termino del experimento */
+#end_experiment {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#end_experiment label {
+    display: inline;
+    position: relative;
+    /* left: 25%;
+    transform: translateX(-50%); */
+    font-size: 30px;
+}
+
+
+#cerebral {
+    border-radius: 50%;
+    border: 2px solid rgb(7, 89, 240);
+    width: 400px;
+}
+
+#msg_end {
+    width: 100%;
+    top: 35%;
+    position: absolute;
+
+    color: black;
+    text-align: center;
+}
+
+#rec {
+    top: 0%;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: rgb(255, 255, 255);
+    opacity: 75%;
+}
+
+#msg_end label {
+    font-size: clamp(6vw, 3.1vw, 8vw);
+    left: 0;
+}
+
+#logo_txt {
+    margin: 10px 0;
+}
+
+#container_logo {
+    width: fit-content;
+    max-width: 800px;
+    opacity: 55%;
+    margin: 20px 0;
+    display: inline-flex;
+    position: relative;
+}
+
+#cerebral_img {
+    border-radius: 50%;
+    width: 150px;
+    border: 3px solid red;
+}
+
+#logo_txt {
+    color: rgb(238, 226, 226);
+    text-shadow: 13px 15px 2 2px rgb(100, 100, 105);
+    margin: 0;
+    font-size: clamp(4vw, 2.5vw, 6vw);
+    top: 50%;
+}
+
+#end_background {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    min-width: 600px;
+    max-width: 3500px;
+}
+
+#container_background {
+    width: 100%;
+    height: 100%;
+}
+
+
+
+#float_window {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 100%;
+    background: rgb(246, 251, 255);
+    display: inline;
+    /* visibility: hidden; */
+}
+
+#c_uac {
+    width: 100%;
+}
+
+
+
+#float_window h1 {
+    width: 60%;
+    font-size: 80px;
+    left: 50%;
+    transform: translateX(33%);
+}
+
+#container_btn_end {
+    width: 100%;
+    display: inline-flex;
+    position: relative;
+}
+
+#btn_end_left {
+    position: relative;
+    width: 50%;
+}
+
+#btn_si {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+
+}
+
+#btn_end_right {
+    width: 50%;
+}
+
+#btn_no {
+    transform: translateX(25%);
+    left: 25%;
+}
+
+.btn_si_no {
+    background: rgb(252, 234, 250);
+    font-size: xxx-large;
+    width: 300px;
+    margin: 40px 0;
+}
+
+#back_window {
+    position: absolute;
+}
+
+
+/*++++++++++++++++ ventana de descanso ++++++++++++++++++*/
+#container_rest {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 100%;
+    background: rgba(246, 251, 255, 1);
+    display: inline;
+    visibility: hidden;
+}
+
+#container_content_rest {
+    width: fit-content;
+    height: fit-content;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* texto de titulo */
+#txt_rest {
+    padding: 0 0 150px 0;
+}
+
+
+#txt_rest h1 {
+    /* position: relative; */
+    font-size: 120px;
+    text-align: center;
+}
+
+/* contenedor de los elementos */
+#c_desc {
+    width: 100%;
+    position: relative;
+}
+
+#c_desc h3 {
+    font-size: 40px;
+    padding: 45px 0 0 10px;
+    margin: 0;
+}
+
+/* wrapper de los elementos */
+#move_txt {
+    width: fit-content;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, 0%);
+}
+
+
+/* motivo del descanso */
+#description_pause {
+    font-size: 25px;
+    width: 900px;
+}
+
+#btn_continuar {
+    position: relative;
+    margin: 10px;
+    padding: 5px;
+    font-size: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 5px;
+    background: rgb(217, 238, 255);
+}

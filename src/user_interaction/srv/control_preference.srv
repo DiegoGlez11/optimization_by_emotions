@@ -1,0 +1,10 @@
+string user_name
+bool reset_table #resetea la tabla
+string id_pareto_front #carga una subtabla de frentes a partir del id
+int32 num_individuals_by_front 
+int32 search_threshold_front
+int32 size_loaded_fronts
+
+#si se aumenta la extension de la busqueda
+string control
+---

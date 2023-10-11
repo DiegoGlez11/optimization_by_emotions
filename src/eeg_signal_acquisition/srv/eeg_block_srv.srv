@@ -1,0 +1,21 @@
+float64[] labels
+float64[] eeg_data  ## señales eeg
+int32 num_channels  ## cantidad de canales eeg
+int32 num_samples   ## muestras captuaradas por cada canal eeg
+
+string user_name ##nombre del usuario actual
+string id_pareto_front ##id de la población actual
+int32 num_ind ## número de individuo en la población
+string id_eeg_signal ##identificador del archivo con las señales eeg
+int32 storage_pos #posicion de almacenamiento
+
+int32 time_capturing #tiempo en segundos
+bool is_start
+bool is_stop
+
+int32 sampling_rate
+string type_signal
+---
+float64[] eeg_data  
+int32 num_channels  
+int32 num_samples 

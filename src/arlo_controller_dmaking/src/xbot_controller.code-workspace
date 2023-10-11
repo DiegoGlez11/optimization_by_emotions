@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"ros.distro": "noetic",
+		"python.autoComplete.extraPaths": [
+			"/home/antonio/catkin_ws/devel/lib/python3.10/site-packages",
+			"/opt/ros/noetic/lib/python3.10/site-packages"
+		],
+		"python.analysis.extraPaths": [
+			"/home/antonio/catkin_ws/devel/lib/python3.10/site-packages",
+			"/opt/ros/noetic/lib/python3.10/site-packages"
+		],
+		"files.associations": {
+			"ostream": "cpp",
+			"iostream": "cpp"
+		}
+	}
+}

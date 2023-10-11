@@ -1,0 +1,10 @@
+string user_name
+string id_emotion_model #optimized, protocol_, deap
+
+int32 num_fold
+int32 num_rep
+
+float64[] labels
+float64[] predictions
+int32 num_pred
+---

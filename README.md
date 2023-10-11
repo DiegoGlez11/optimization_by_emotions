@@ -13,11 +13,11 @@ El sistema está compuesto por varias tecnologías, las cuales a continuación s
 2. Instalar nvm (Node Version Manager): curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 3. comprobar instalación: nvm --version
 4. Instalar NodeJs version 17.5.0: nvm install 17.5.0
-5. Instalar pip, el método utilizado es por medio del archivo get-pip.py, ver link para más detalles https://pandas.pydata.org/docs/getting_started/install.html
+5. Instalar pip, el método utilizado es por medio del archivo get-pip.py, ver link para más detalles https://pip.pypa.io/en/stable/installation/
 6. Si aparece un warning después de la instalación de pip indicando que se instaló en una ruta que no es el PATH, se exporta con: export PATH="/home/{usuario}/.local/bin" 
 7. Instalar pandas: pip install pandas
 8. Descargar el repositorio de brainflow: https://github.com/brainflow-dev/brainflow
-9. Renombrar la carpeta principal del repositorio por brainflow y pasarla al /home
+9. Renombrar la carpeta principal del repositorio por brainflow y pasarla a ~/ (home)
 10. Ubicarse en cd ~/brainflow/tools
 11. instalar con pyhon3: python3 build.py --cmake-install-prefix=~/brainflow
 12. Exportar la ruta de brainflow: export CMAKE_PREFIX_PATH="${HOME}/brainflow:${CMAKE_PREFIX_PATH}"
@@ -25,6 +25,10 @@ El sistema está compuesto por varias tecnologías, las cuales a continuación s
 14. Instalar pygame: python3 -m pip install -U pygame --user
 15. Para graficar los resultados en un notebook: pip install jupyterlab
 16. Instalar pdf2image: pip install pdf2image
+17. Para generar los puntos de referencia en el espacio de los objetivos: pip install -U pymoo
+18. Para usar Brainflow con python: python -m pip install brainflow
+19. Mover la carpeta /models a ~/.gazebo
+20. El renombrar la carpeta del repositorio (previamente descargado) por "catkin_ws" y pasarla al ~/ (directorio home)
 
 Para instalar las dependencias de los nodos desarrollados con NodeJS
 
@@ -33,5 +37,5 @@ Para instalar las dependencias de los nodos desarrollados con NodeJS
 3. Dirigirse al directorio:  cd ~/catkin_ws/src/user_interaction/
 4. Instalar dependencias: npm install
 
-IMPORTANTE:
-El nombre del la carpeta del repositorio (previamente descargado) debe renombrase por "catkin_ws" y pasarla al /home
+
+

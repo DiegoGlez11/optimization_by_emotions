@@ -37,7 +37,7 @@ notas.txt
 !**/neurocontroller_database/scripts_to_results/before_experiments.ipynb
 !**/neurocontroller_database/scripts_to_results/SAM: neurocontroladores.ipynb
 !**/neurocontroller_database/scripts_to_results/resultados experimentos.ipynb
-
+!**/neurocontroller_database/scripts_to_results/test: non_dominated.ipynb
 
 build/
 devel/

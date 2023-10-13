@@ -7,10 +7,16 @@ function control_experiment() {
     rosnodejs.nh.advertiseService("experiment_control", "user_interaction/experiment_control", (req, res) => {
         let ctl = req.control;
 
-
+        // abre la ventana de efectos para estimular al individuo
         if (req.start_effects_window) {
             open_effects_window();
-            return;
+            return true;
+        }
+
+        // ultimo frente
+        if (ctl == "last_front") {
+            DATA_CONTROL.last_front_all = true;
+            return true;
         }
 
         let id_pareto = req.id_pareto_front;
@@ -36,7 +42,7 @@ function control_experiment() {
             //     return;
             // }
 
-            play_video(id_pareto, num_inds, req.play_video_intro);
+            play_video(id_pareto, num_inds, req.play_video_intro, req.extend_search);
         }
 
         // se inicia el experimento desde un frente en especifico pero con evalucioanes
@@ -46,7 +52,7 @@ function control_experiment() {
             //     console.error("Inicio de la BCI TEST sin individuos");
             //     return;
             // }
-            start_experiment(id_pareto, num_inds);
+            start_experiment(id_pareto, num_inds, false, req.extend_search);
         }
 
         // selección de un individuo
@@ -82,7 +88,7 @@ function get_distribuited_inds(id_pareto) {
 }
 
 
-function start_experiment(id_pareto, sel_inds = undefined, test_interface = false) {
+function start_experiment(id_pareto, sel_inds = undefined, test_interface = false, extend_search = undefined) {
     return new Promise((resolve, reject) => {
         // si es prueba de interfaz
         if (test_interface) {
@@ -106,7 +112,7 @@ function start_experiment(id_pareto, sel_inds = undefined, test_interface = fals
                     // texto anterior
                     txt.innerHTML = "";
                     INTERFACE_TEST = false;
-                    start_experiment(id_pareto);
+                    start_experiment(id_pareto, sel_inds, false, extend_search);
                 }, 4000);
 
             };
@@ -114,60 +120,64 @@ function start_experiment(id_pareto, sel_inds = undefined, test_interface = fals
             document.body.appendChild(btn_test);
         }
 
-        show_one_window("graph");
-        // reseteo de la interfaz
-        reset_interface().then(() => {
-            // nuevo ID del experimento
-            new_experiment(test_interface).then((storage_pos) => {
-                // se resetea la pos en la tabla de los frentes
-                change_model_preference(undefined, undefined, true).then(() => {
-                    console.log(Array.isArray(sel_inds), sel_inds);
-                    // sin individuos
-                    if (sel_inds == undefined || !Array.isArray(sel_inds)) {
-                        get_distribuited_inds(id_pareto).then((individuals) => {
-                            console.log(individuals);
-                            send_data_front(id_pareto, individuals, storage_pos);
+        change_model_preference(undefined, undefined, undefined, undefined, undefined, INTERFACE_TEST).then(() => {
+            show_one_window("graph");
+            // reseteo de la interfaz
+            reset_interface().then(() => {
+                // nuevo ID del experimento
+                new_experiment(test_interface).then((storage_pos) => {
+                    // se resetea la pos en la tabla de los frentes
+                    change_model_preference(undefined, undefined, undefined, id_pareto, extend_search).then(() => {
+                        // console.log(Array.isArray(sel_inds), sel_inds);
+                        // sin individuos
+                        if (sel_inds == undefined || !Array.isArray(sel_inds)) {
+                            get_distribuited_inds(id_pareto).then((individuals) => {
+                                console.log(individuals);
+                                send_data_front(id_pareto, individuals, storage_pos);
+                                resolve();
+                            }).catch((e) => {
+                                reject(e);
+                            })
+                        } else {
+                            send_data_front(id_pareto, sel_inds, storage_pos);
                             resolve();
-                        }).catch((e) => {
-                            reject(e);
-                        })
-                    } else {
-                        send_data_front(id_pareto, sel_inds, storage_pos);
-                        resolve();
-                    }
+                        }
 
 
 
-                    // // se ocultan las partes gráficas
-                    // document.getElementById("right_metric").style.visibility = "hidden";
-                    // document.getElementById("left_metric").style.visibility = "hidden";
-                    // document.getElementById("window_block").style.visibility = "hidden";
-                    // document.getElementById("window_new_fronts").style.visibility = "hidden";
-                    // document.getElementById("window_last_front").style.visibility = "hidden";
-                    // DATA_FRONT = [];
-                    // DATA_CONTROL.actual_front = "";
-                    // DATA_CONTROL.select_ind = false;
+                        // // se ocultan las partes gráficas
+                        // document.getElementById("right_metric").style.visibility = "hidden";
+                        // document.getElementById("left_metric").style.visibility = "hidden";
+                        // document.getElementById("window_block").style.visibility = "hidden";
+                        // document.getElementById("window_new_fronts").style.visibility = "hidden";
+                        // document.getElementById("window_last_front").style.visibility = "hidden";
+                        // DATA_FRONT = [];
+                        // DATA_CONTROL.actual_front = "";
+                        // DATA_CONTROL.select_ind = false;
 
 
-                    // // individuos iniciales
-                    // get_dir().then((user_dir) => {
-                    //     let dir_hist = `${user_dir}/history`;
+                        // // individuos iniciales
+                        // get_dir().then((user_dir) => {
+                        //     let dir_hist = `${user_dir}/history`;
 
-                    //     // primeros ind seleccionados
-                    //     load_object(`${dir_hist}/selected_individuals.txt`).then((histo_sel) => {
-                    //         if (histo_sel.length == undefined) histo_sel = [];
-                    //         histo_sel.push({ id_pareto_front: id_pareto, num_individuals: sel_inds });
-                    //         // registro de los primeros ind seleccionados
-                    //         save_object(histo_sel, "selected_individuals.txt", dir_hist).then((e) => {
-                    //         }).catch((e) => {
-                    //             reject(e);
-                    //         });
-                    //     }).catch((e) => {
-                    //         reject(e);
-                    //     });
-                    // }).catch((e) => {
-                    //     reject(e);
-                    // });
+                        //     // primeros ind seleccionados
+                        //     load_object(`${dir_hist}/selected_individuals.txt`).then((histo_sel) => {
+                        //         if (histo_sel.length == undefined) histo_sel = [];
+                        //         histo_sel.push({ id_pareto_front: id_pareto, num_individuals: sel_inds });
+                        //         // registro de los primeros ind seleccionados
+                        //         save_object(histo_sel, "selected_individuals.txt", dir_hist).then((e) => {
+                        //         }).catch((e) => {
+                        //             reject(e);
+                        //         });
+                        //     }).catch((e) => {
+                        //         reject(e);
+                        //     });
+                        // }).catch((e) => {
+                        //     reject(e);
+                        // });
+                    }).catch((e) => {
+                        reject(e);
+                    });
                 }).catch((e) => {
                     reject(e);
                 });
@@ -175,8 +185,8 @@ function start_experiment(id_pareto, sel_inds = undefined, test_interface = fals
                 reject(e);
             });
         }).catch((e) => {
-            reject(e);
-        });
+            reject(e)
+        })
     });
 }
 

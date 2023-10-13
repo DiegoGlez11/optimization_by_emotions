@@ -182,6 +182,7 @@ function experiment_neuro(control) {
         param.num_inds = individuals_array;
         param.control = control;
         param.play_video_intro = document.getElementById("check_intro_vid").checked;
+        param.extend_search = document.getElementById("extend_search").checked;
 
         experiment_control(param).then(() => {
             resolve();

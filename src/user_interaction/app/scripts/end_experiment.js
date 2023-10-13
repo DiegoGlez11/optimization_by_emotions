@@ -12,6 +12,8 @@ function end_exp(e) {
     let id_p = e.target.getAttribute("id");
     if (id_p == "a_agree") id_p = "prefered";
     if (id_p == "a_exit") id_p = "exit";
+    if (id_p == "btn_last_front") id_p = "exit";
+    console.log("end_exp", id_p);
 
     load_actual_ind().then((actual_ind) => {
         if (actual_ind["id_experiment"] == "" || actual_ind["id_experiment"] == undefined) {

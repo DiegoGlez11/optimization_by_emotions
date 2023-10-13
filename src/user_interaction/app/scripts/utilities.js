@@ -537,7 +537,7 @@ function get_concluded_experiments() {
         // se recorre la lista de experimentos
         let exp_list = reg_exp["list"];
         for (let i = 0; i < exp_list.length; i++) {
-          console.log(exp_list[i]["test_interface"]);
+
           // si es prueba de interfaz
           if (exp_list[i]["test_interface"]) continue;
 
@@ -575,7 +575,7 @@ function reset_interface() {
       document.getElementById("left_metric").style.visibility = "hidden";
       document.getElementById("window_block").style.visibility = "hidden";
       document.getElementById("window_new_fronts").style.visibility = "hidden";
-      document.getElementById("window_last_front").style.visibility = "hidden";
+      // document.getElementById("window_last_front").style.visibility = "hidden";
 
       // si existe la tabla de objetivos
       let table = document.getElementById("inds_table");

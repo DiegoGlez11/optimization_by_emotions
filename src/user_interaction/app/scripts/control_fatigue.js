@@ -71,6 +71,9 @@ function show_fatigue_slider(id_pareto, storage_pos, random = false) {
 
             save_fatigue_eval(id_pareto, storage_pos, random).then(() => {
                 DATA_CONTROL.active_fatigue = false;
+                if (DATA_CONTROL.last_front_all == true) {
+                    show_one_window("lim_neuro");
+                }
                 resolve();
             }).catch((e) => {
                 DATA_CONTROL.active_fatigue = false;

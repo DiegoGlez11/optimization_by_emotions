@@ -38,11 +38,11 @@ video_intro.addEventListener("ended", () => {
     } else {
         // se oculta el video introductorio
         show_one_window("graph");
-        start_experiment(data_exp.id_pareto, data_exp.individuals, true);
+        start_experiment(data_exp.id_pareto, data_exp.individuals, true, data_exp.extend_search);
     }
 });
 
-function play_video(id_pareto, num_inds, play_intro = false) {
+function play_video(id_pareto, num_inds, play_intro = false, extend_search = undefined) {
     if (id_pareto == undefined || id_pareto == "") {
         alert("No se puede ejecutar el video de introducción. Falta ingresar los datos del frente inicial");
         return;
@@ -53,7 +53,7 @@ function play_video(id_pareto, num_inds, play_intro = false) {
 
     // se guarda el experimento a ejecutar tras terminar el video
     let cont_vid = document.getElementById("container_intro_video");
-    let data_exp = { id_pareto: id_pareto, individuals: num_inds, play_intro: play_intro };
+    let data_exp = { id_pareto: id_pareto, individuals: num_inds, play_intro: play_intro, extend_search: extend_search };
     cont_vid.setAttribute("ini_experiment", JSON.stringify(data_exp));
 
 

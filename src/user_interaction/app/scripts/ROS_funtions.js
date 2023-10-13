@@ -245,6 +245,7 @@ function get_obj_space(id_pareto, is_norm, non_dominated) {
         param.id_pareto_front = id_pareto;
         param.normalize = is_norm;
         param.non_dominated = non_dominated;
+        param.load_test = INTERFACE_TEST;
 
         srv_obj.call(param).then((res) => {
             resolve(res);
@@ -386,7 +387,7 @@ function get_state_acquisition() {
 
 
 // parámetros del módulo de preferencias
-function change_model_preference(num_ind_front = undefined, threshold_front = undefined, reset_table = undefined, id_pareto = undefined) {
+function change_model_preference(num_ind_front = undefined, threshold_front = undefined, reset_table = undefined, id_pareto = undefined, extend_search = undefined, test_interface = undefined) {
     return new Promise((resolve, reject) => {
         let srv_c = rosnodejs.nh.serviceClient("/control_preference", "user_interaction/control_preference");
         // usuario actual
@@ -397,6 +398,12 @@ function change_model_preference(num_ind_front = undefined, threshold_front = un
             if (threshold_front != undefined) param.search_threshold_front = threshold_front;
             if (reset_table != undefined) param.reset_table = reset_table;
             if (id_pareto != undefined) param.id_pareto_front = id_pareto;
+            if (extend_search != undefined) {
+                if (extend_search == true) param.control = "extend_search";
+                if (extend_search == false) param.control = "non_extend_search";
+            }
+            if (test_interface == true) param.control = "load_test";
+            if (test_interface == false) param.control = "deactiv_load_test";
 
             srv_c.call(param).then(() => {
                 resolve();
@@ -427,7 +434,7 @@ function change_parameters_train(in_params) {
         if (in_params["batch_size"] != undefined) params["batch_size"] = in_params["batch_size"];
 
         srv.call(params).then(() => {
-            console.log("...........");
+            // console.log("...........");
             resolve();
         }).catch(() => {
             console.error("Error al configurar los parámetros del entrenamiento\n\n");

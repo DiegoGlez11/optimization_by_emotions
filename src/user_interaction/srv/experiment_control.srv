@@ -5,5 +5,5 @@ int32[] num_inds
 #bool do_basal_state
 bool play_video_intro
 bool start_effects_window
-
+bool extend_search
 ---

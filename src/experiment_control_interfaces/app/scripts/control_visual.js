@@ -203,24 +203,32 @@ container_mode.appendChild(type_par_cat);
 // -------------------------------------------------------
 
 
-// si es manual la captura
 let param_norm = {}
 param_norm["type"] = "checkbox";
 param_norm["id"] = "normalization";
 param_norm["text"] = "<label class='name_control'>Normalizar</label>";
 param_norm["checked_value"] = "do_norm";
 param_norm["non_checked_value"] = "deactiv_norm";
-param_norm["ros_name"] = "/change_norm";
-param_norm["ros_type"] = "user_interaction/experiment_control";
-param_norm["callback_prepare_param"] = function (input) {
+param_norm["ros_name"] = ["/change_norm", "/control_preference"];
+param_norm["ros_type"] = ["user_interaction/experiment_control", "user_interaction/control_preference"];
+param_norm["callback_prepare_param"] = [function (input) {
     let param = new user_interaction.experiment_control.Request();
     let mode_sel = "deactiv_norm";
     if (input.checked) mode_sel = "do_norm";
 
     param.control = mode_sel;
-    console.log(param);
+    // console.log(param);
     return param;
-};
+},
+function (input) {
+    let param = new user_interaction.control_preference.Request();
+    let mode_sel = "deactiv_norm";
+    if (input.checked) mode_sel = "do_norm";
+
+    param.control = mode_sel;
+    // console.log(param);
+    return param;
+}]
 let do_norm = create_input_param(param_norm);
 do_norm.load_param();
 container_v.appendChild(do_norm);

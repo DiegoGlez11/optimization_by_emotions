@@ -2,11 +2,10 @@ string id_pareto_front
 int32 solutions_number
 bool normalize
 bool non_dominated
-bool load_test #individuos de prueba
 ---
 float64[] obj_space
 int32 num_obj
 int32 pop_size
 
-string[] id_pareto_fronts
-int32[] num_inds
+string[] relative_id_pareto
+int32[] relative_num_ind

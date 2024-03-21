@@ -4,7 +4,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-css": "npx tailwindcss -i ./app/css/graph_preference.css -o ./app/css_tailwind/output.css --watch"
   },
   "author": "Diego Gonzalez Chavez",
   "license": "ISC",
@@ -12,6 +13,7 @@
   "dependencies": {
     "chart.js": "^3.7.1",
     "chartjs-plugin-zoom": "^1.2.1",
+    "daisyui": "^4.7.2",
     "electron": "^22.0.2",
     "electron-renderify": "^0.0.2",
     "plotly.js-dist-min": "^2.14.0",

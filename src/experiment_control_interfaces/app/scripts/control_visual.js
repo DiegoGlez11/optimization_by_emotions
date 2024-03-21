@@ -2,21 +2,6 @@
 
 // ---------------------------------------------
 // ---------------------------------------------
-// num mensajes en la interfaz
-// ---------------------------------------------
-let param_visual = {}
-param_visual["type"] = "number";
-param_visual["id"] = "visual_num";
-param_visual["text"] = "Número de mensajes en el EEG ";
-let visual_num = create_input_param(param_visual);
-visual_num.load_param();
-document.getElementById("container_num_visual").appendChild(visual_num);
-
-
-
-
-// ---------------------------------------------
-// ---------------------------------------------
 //  muestra la ventana de efectos visuales
 // ---------------------------------------------
 

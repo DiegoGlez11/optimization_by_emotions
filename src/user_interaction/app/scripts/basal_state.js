@@ -43,7 +43,7 @@ function start_basal_state(id_pareto, num_ind, storage_pos, time_basal = 2000) {
 
                             histo_basal[id_pareto][id_ind][storage_pos] = res.id_eeg_signal;
 
-                            save_object(histo_basal, "histo_basal_state_dict.txt", `${dir_user}/history`).then(() => {
+                            COMM_FUNCT.save_object(histo_basal, "histo_basal_state_dict.txt", `${dir_user}/history`).then(() => {
 
                                 resolve();
                             }).catch((e) => {

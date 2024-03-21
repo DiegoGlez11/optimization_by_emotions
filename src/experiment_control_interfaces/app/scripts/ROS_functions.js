@@ -110,24 +110,6 @@ function start_protocol(control) {
 }
 
 
-function save_data_string(str, name_file, dir_) {
-    return new Promise((resolve, reject) => {
-        let srv_str = rosnodejs.nh.serviceClient("/save_data_string", "neurocontroller_database/save_data_string");
-        let srv_param = new neurocontroller_database.save_data_string.Request();
-        srv_param.data_string = str;
-        srv_param.directory = dir_;
-        srv_param.name_file = name_file;
-
-        srv_str.call(srv_param).then((res) => {
-            resolve(res);
-        }).catch((e) => {
-            console.error("Error al guardar la cadena de texto");
-            reject(e);
-        });
-    });
-}
-
-
 
 
 function control_emotion(param) {//(window_size, stride, model_name, k_rep, num_fold, num_epoch, batch_size, tolerance) {
@@ -277,20 +259,7 @@ function set_preprocessing_val(freq_ini, freq_end, filter_order, remove_env_nois
     });
 }
 
-function get_type_id(id_pareto) {
-    return new Promise((resolve, reject) => {
-        let srv = rosnodejs.nh.serviceClient("/get_type_id", "neurocontroller_database/get_type_id");
-        let param = new neurocontroller_database.get_type_id.Request();
-        param.id_pareto_front = id_pareto;
 
-        srv.call(param).then((res) => {
-            resolve(res.type);
-        }).catch((e) => {
-            console.error("Error al obtener el tipo de ID", e);
-            reject(e);
-        });
-    });
-}
 
 function get_evaluations_srv(user_name, model_name, id_emotion_model, num_rep, num_fold) {
     return new Promise((resolve, reject) => {

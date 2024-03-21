@@ -78,10 +78,9 @@
 }
 
 
-#simulation_container {
+/* #simulation_container {
     background: red;
     animation: blinker 1.5s linear infinite;
-    /* display: flex; */
     width: 100%;
     height: 100%;
     visibility: hidden;
@@ -92,7 +91,7 @@
     95% {
         opacity: 0;
     }
-}
+} */
 
 
 

@@ -25,21 +25,6 @@
         output="screen"
         launch-prefix="gnome-terminal --tab --" />
 
-    <!-- control de los neurocontroladores con la simulación -->
-    <node name="arlo_controller_node"
-        pkg="arlo_controller_dmaking"
-        type="arlo_controller_dmaking"
-        respawn="false"
-        output="screen"
-        launch-prefix="gnome-terminal --tab --" />
-
-    <!-- sonido de la simulación -->
-    <node name="sound_effect_node"
-        pkg="arlo_controller_dmaking"
-        type="sound_effect.py"
-        respawn="false"
-        output="screen"
-        launch-prefix="gnome-terminal --tab --" />
 
     <!-- gui para controlar el experimento -->
     <node name="run_gui_control"
@@ -56,7 +41,5 @@
         respawn="false"
         output="screen"
         launch-prefix="gnome-terminal --tab --" />
-
-    <!-- <include file="$(find arlo_mejorado)/launch/xbot_basic_house.launch" /> -->
 
 </launch>

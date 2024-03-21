@@ -1,0 +1,5 @@
+//para los generados por frente
+id_pareto = [a-z]+"-"[1-9] + ("_"[a-z]+"-"[1-9]+)*
+
+//para datos por usuario
+user_name/id_pareto

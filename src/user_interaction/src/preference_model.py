@@ -18,7 +18,7 @@ import random
 from operator import itemgetter
 from utilities import save_json, load_json, print_color, bcolors, has_attr, print_error
 from PBI import PBI
-from ROS import load_object_space_ros_non_dom, load_object_space_ros
+from ROS import load_object_space_ros
 from distributed_individuals import select_inds
 
 
@@ -49,11 +49,12 @@ RANGE_LOADED = {}
 
 # normalization
 NORMALIZATION = True
-LOAD_TEST = False
+
 
 # datos emocionales entrantes
 emotion_values = np.empty((0, 2))
 num_inds = []
+ID_PARETO_INDS = []
 # datos de los individuos de todos los frentes
 all_fronts = None
 
@@ -69,6 +70,23 @@ type_model_pref = "pbi"
 # datos del frente actual
 FRONT_DATA = {"id_pareto":"", "storage_pos":"", "is_capturing":False}
 
+def save_param(param):
+    path_ = f"{root_dir}/control_params.txt"
+    # load params
+    params = load_json(path_)
+
+    for k in param:
+        val = param[k]
+
+        if k == "num_individuals_by_front" or k == "search_threshold_front":
+            t = type(val)
+            if not t == int:
+                raise f"Tipo inválido para el parámetro[{k}=={t}]"
+
+        params[k] = val
+
+    # save param
+    save_json(params,path_)
 
 # control preference
 def control_pref(req):
@@ -77,10 +95,12 @@ def control_pref(req):
 
     if req.num_individuals_by_front > 0:
         num_individuals_by_front = req.num_individuals_by_front
+        save_param({"num_individuals_by_front": num_individuals_by_front})
         print_color(f"num_individuals_by_front {num_individuals_by_front}", bcolors.OKGREEN)
 
     if req.search_threshold_front > 0:
         search_threshold_front = req.search_threshold_front
+        save_param({"search_threshold_front":search_threshold_front})
         print_color(f"search_threshold_front {search_threshold_front}", bcolors.OKGREEN)
 
     if req.reset_table and req.user_name != "":
@@ -92,7 +112,7 @@ def control_pref(req):
     
     # cuando se carga un frente en la GUI se debe cargar su subtabla de frentes
     if req.id_pareto_front != "" and req.user_name != "":
-        print_color("load sub table", bcolors.OKGREEN)
+        print_color("load subtable", bcolors.OKGREEN)
         load_subtable(req.user_name, id_pareto=req.id_pareto_front)
 
     if req.size_loaded_fronts > 0:
@@ -119,21 +139,7 @@ def control_pref(req):
         NORMALIZATION = False
         print_color(f"deactive_normalization: {NORMALIZATION}", bcolors.OKGREEN)
 
-
-
-    if req.control == "load_test":
-        LOAD_TEST = True
-        print_color(f"LOAD_TEST: {LOAD_TEST}", bcolors.OKGREEN)
-
-    if req.control == "deactiv_load_test":
-        LOAD_TEST = False
-        print_color(f"LOAD_TEST: {LOAD_TEST}", bcolors.OKGREEN)
-
-
     return control_preferenceResponse()
-
-
-
 
 
 
@@ -141,7 +147,6 @@ def load_subtable(user_name, ini=None, start=False, id_pareto=None):
     global size_loaded_fronts, RANGE_LOADED
     global SUBTABLE, num_individuals_by_front
 
-    print("load table and pos front")
     data_table = load_json(f"{root_dir}/fronts_table.txt")
     table = data_table["fronts_table"]
 
@@ -208,7 +213,7 @@ def load_subtable(user_name, ini=None, start=False, id_pareto=None):
 
     # subtabla con los ID de los frentes
     SUBTABLE = table[pos_table["ini"] : pos_table["end"]]
-    print("rangos de la subtabla", pos_table, ": ", SUBTABLE[0], "front_end: ", SUBTABLE[-1],f"positions: {pos_table}\n\n")
+    print("frente inicial: ", SUBTABLE[0], "frente final: ", SUBTABLE[-1],f"rango: {pos_table}\n\n")
     # rango de los frentes en la tabla
     RANGE_LOADED = pos_table
 
@@ -230,14 +235,10 @@ def load_subtable(user_name, ini=None, start=False, id_pareto=None):
     ids_dif = ids_subtable - ids_loaded
     for id in ids_dif:
         # se carga el frente
-        print("LOAD_TEST", LOAD_TEST, "NORMALIZATION", NORMALIZATION)
-        res_obj = load_object_space_ros_non_dom(id, min_sol=num_individuals_by_front, return_object=True, normalize=NORMALIZATION, non_dominated=True, test_data= LOAD_TEST)
-        DATA_FRONT[id] = {"id_pareto_front":id,"obj_space":res_obj["obj_space"], "num_inds":np.array(res_obj["num_inds"])}
-
+        res_obj = load_object_space_ros(id, min_sol=num_individuals_by_front, return_object=True, normalize=NORMALIZATION, non_dominated=True)
+        DATA_FRONT[id] = {"id_pareto_front":id,"obj_space":res_obj["obj_space"], "num_inds":np.array(res_obj["num_inds"]), "id_pareto_inds": res_obj["id_pareto_inds"]}
 
     return table[pos_update]
-
-
 
 
 
@@ -259,11 +260,6 @@ def update_pos_table(user_name, pos=None, ini=None, end=None):
 
 
 
-
-
-
-
-
 def get_pos_table(user_name):
     dir_actual = f"{root_dir}/{user_name}/pos_fronts_table.txt"
     actual_f = load_json(dir_actual)
@@ -272,31 +268,31 @@ def get_pos_table(user_name):
 
 
 def predictions(msg):
-    global emotion_values, num_inds
+    global emotion_values, num_inds, ID_PARETO_INDS
     global num_individuals_by_front
 
     user_name = msg.user_name
     #FALTA IMPLEMENTAR EL CONTROL DE USUARIO
 
-    id_pareto = msg.id_experiment
+    id_pareto = msg.id_pareto
+    id_pareto_ind = msg.id_pareto_ind
     num_ind = msg.num_ind
     storage_pos = str(msg.storage_pos)
 
-    print_color(f"\n\nadd to preference model {id_pareto} ind_{num_ind}", bcolors.OKBLUE)
-    print(f"add: {id_pareto}/ind_{storage_pos}    old:{FRONT_DATA['id_pareto']}/ind_{FRONT_DATA['storage_pos']}")
+    print_color(f"\n\nadd to preference model\nid_pareto:{id_pareto} id_pareto_ind:{id_pareto_ind} ind_{num_ind} storage_pos:{storage_pos}", bcolors.OKBLUE)
+    # print(f"add: {id_pareto}/ind_{storage_pos}    old:{FRONT_DATA['id_pareto']}/ind_{FRONT_DATA['storage_pos']}")
     
-
     # proceso de capturar las emociones de un frente
     is_err = False
     if FRONT_DATA["is_capturing"]:
 
-        # si se cambia de frente
-        if FRONT_DATA["id_pareto"] != id_pareto:
-            print_error(f"Emoción con id diferente= new:{id_pareto} != old:{FRONT_DATA['id_pareto']}")
-            is_err = True
+        # # si se cambia de frente
+        # if FRONT_DATA["id_pareto"] != id_pareto:
+        #     print_error(f"Emoción con id diferente= new:{id_pareto} != old:{FRONT_DATA['id_pareto']}")
+        #     is_err = True
 
         # si se cambia de experimento
-        elif FRONT_DATA["storage_pos"] != storage_pos:
+        if FRONT_DATA["storage_pos"] != storage_pos:
             print_error(f"Cambio de ID del experimento y aún no se cargan todas las emociones= new:{storage_pos} != old:{FRONT_DATA['storage_pos']}")
             is_err = True        
             
@@ -305,10 +301,12 @@ def predictions(msg):
         #  se incia el proceso de capturar las emociones de un frente
         FRONT_DATA["is_capturing"] = True
         FRONT_DATA["id_pareto"] = id_pareto
+        FRONT_DATA["id_pareto_ind"] = id_pareto_ind
         FRONT_DATA["storage_pos"] = storage_pos
 
         emotion_values = np.empty((0, 2))
         num_inds = []
+        ID_PARETO_INDS = []
         
         if is_err:
             print_color("Se reinicia la captura emocional", bcolors.OKGREEN)
@@ -320,6 +318,8 @@ def predictions(msg):
     emotion_values = np.vstack((emotion_values, msg.emotion_value))
     # num inds
     num_inds.append(num_ind)
+    # id inds
+    ID_PARETO_INDS.append(id_pareto_ind)
 
     print(f"Se han capturado {emotion_values.shape[0]} emociones")
 
@@ -330,12 +330,12 @@ def predictions(msg):
         print_color("Fin de la captura de emociones", bcolors.OKGREEN)
         print("\n\n")
         # copias de los valores
-        emo_v, num_i = emotion_values.copy(), num_inds.copy()
+        emo_v, num_i, id_p = emotion_values.copy(), num_inds.copy(), ID_PARETO_INDS.copy()
         # se reinician las variables de almacenamiento
-        emotion_values, num_inds = np.empty((0, 2)), []
+        emotion_values, num_inds, ID_PARETO_INDS = np.empty((0, 2)), [], []
 
         # se calcula el punto ref en base a las evaluaciones emocionales
-        point_pref, num_ind_pref = preference_emo_model(user_name, emo_v, num_i, id_pareto)
+        point_pref, num_ind_pref, id_pareto_ind_ref = preference_emo_model(user_name, id_pareto, emo_v, num_i, id_p)
 
         # siguiente frente
         next_front(user_name, point_pref, id_pareto, num_ind_pref, storage_pos)
@@ -344,7 +344,7 @@ def predictions(msg):
 
 
 
-def preference_emo_model(user_name, emotion_values, num_inds, id_pareto):
+def preference_emo_model(user_name, id_pareto, emotion_values, num_inds, id_pareto_inds):
 
     print("--- preference_model ---")
 
@@ -366,13 +366,15 @@ def preference_emo_model(user_name, emotion_values, num_inds, id_pareto):
 
     # num del ind con mayor preferencia
     num_ind = num_inds[pos_max]
+    # id del ind
+    id_pareto_ind = id_pareto_inds[pos_max]
     
     pos_ind = DATA_FRONT[id_pareto]["num_inds"] == num_ind
     # mas de un ind o nada
     if np.sum(pos_ind) != 1:
         raise Exception("ERROR CON EL MANEJO DE INDIVIDUOS EN EL MODELO DE PREFERENCIAS ...")
     
-    print(id_pareto,num_ind, DATA_FRONT[id_pareto]["num_inds"])
+    print(id_pareto, id_pareto_ind, num_ind, DATA_FRONT[id_pareto]["num_inds"])
     point_ref = DATA_FRONT[id_pareto]["obj_space"][pos_ind][0]
     print("point_ref", point_ref)
 
@@ -395,7 +397,7 @@ def preference_emo_model(user_name, emotion_values, num_inds, id_pareto):
 
     print("-----------------------")
 
-    return point_ref, num_ind
+    return point_ref, num_ind, id_pareto_ind
 
 # servicio ROS para buscar un nuevo frente 
 def search_new_front(req):
@@ -457,7 +459,7 @@ def next_front(user_name, point_reference, id_pareto, num_ind_ref, storage_pos):
     # num_ind_close = ""
     # num_ind_close_relative = ""
     # id_pareto_close = ""
-
+    
     # para cada frente
     for id_front in SUBTABLE:
         print("buscando en", id_front)
@@ -471,7 +473,7 @@ def next_front(user_name, point_reference, id_pareto, num_ind_ref, storage_pos):
         # ind con menor distancia
         num_ind = np.argmin(chebyshev_dist)
         dist_ = chebyshev_dist[num_ind]
-
+        # print(dist_, min_dist)
         if dist_ < min_dist:
             min_dist = dist_
             close_ind["num_ind_relative"] = num_ind
@@ -481,7 +483,7 @@ def next_front(user_name, point_reference, id_pareto, num_ind_ref, storage_pos):
             # num_ind_close_relative = num_ind
             # num_ind_close = DATA_FRONT[id_front]["num_inds"][num_ind]
             # id_pareto_close = id_front
-
+ 
     # se actualiza la posición actual de la tabla
     update_pos_table(user_name, pos=fronts_table["id_position"][close_ind["id_pareto"]])
 
@@ -499,7 +501,7 @@ def next_front(user_name, point_reference, id_pareto, num_ind_ref, storage_pos):
 
     # distancias euclideanas de point_close con el resto de su población
     search_vector = np.linalg.norm(search_vector, ord=2, axis=1)
-
+    print("num_individuals_by_front", num_individuals_by_front)
     # si hay cambios en el tamaño de la extensión de la búsqueda
     size_search = num_individuals_by_front
     if len(ARRAY_CONTROL) > 0:
@@ -507,18 +509,22 @@ def next_front(user_name, point_reference, id_pareto, num_ind_ref, storage_pos):
         del ARRAY_CONTROL[0]
 
     # se obtienen los de menor distancia
+    if len(search_vector) == size_search: size_search = len(search_vector) - 1
     search_vector = np.argpartition(search_vector, size_search)
     search_vector = search_vector[:size_search]
 
     # num de los individuos seleccionados
     individuals_selected = actual_inds["num_inds"][search_vector]
+    # id al que pertenecen
+    id_pareto_inds = actual_inds["id_pareto_inds"][search_vector]
     
     if len(ARRAY_CONTROL) > 0:
         # valores de los ind en el espacio de los objetivos
         individuals_obj = actual_inds["obj_space"][search_vector]
         # individuos seleccionados
         inds_selected = select_inds(individuals_obj)
-        # numero de los individuos seleccionados
+
+        # num de los individuos seleccionados
         inds_selected = individuals_selected[inds_selected]
         
         # guarda los ind para la búsqueda y los seleccionados
@@ -534,13 +540,13 @@ def next_front(user_name, point_reference, id_pareto, num_ind_ref, storage_pos):
 
     print("individuals_selected", individuals_selected, "search_vector", search_vector)
 
-    save_data(user_name, storage_pos, id_pareto, point_reference, num_ind_ref, close_ind["id_pareto"], point_close, close_ind["num_ind_real"], individuals_selected)
+    save_data(user_name, storage_pos, id_pareto, id_pareto_inds, point_reference, num_ind_ref, close_ind["id_pareto"], point_close, close_ind["num_ind_real"], individuals_selected)
 
     print_color(f"New front:{close_ind['id_pareto']}  old:{id_pareto}  indsel:{individuals_selected}",bcolors.OKCYAN)
     print("-----------------------------------------------------")
 
 
-def save_data(user_name, storage_pos, id_pareto, point_reference, num_ind_ref, id_pareto_close, point_close, num_ind_close, individuals_selected):
+def save_data(user_name, storage_pos, id_pareto, id_pareto_inds, point_reference, num_ind_ref, id_pareto_close, point_close, num_ind_close, individuals_selected):
     
     # se carga el registro de individuos seleccionados
     all_inds_sel = load_json(f"{root_dir}/{user_name}/history/selected_individuals.txt")
@@ -555,12 +561,13 @@ def save_data(user_name, storage_pos, id_pareto, point_reference, num_ind_ref, i
     num_ind_close = int(num_ind_close)
     point_close = point_close.tolist()
     individuals_selected = individuals_selected.tolist()
+    id_pareto_inds = list(id_pareto_inds)
     
 
     # se almacenan los individuos
     mref = { "id_pareto_front": id_pareto, "num_ind": num_ind_ref, "point": point_reference }
     mclose = { "id_pareto_front": id_pareto_close, "num_ind": num_ind_close, "point": point_close}
-    obj_next = {"id_pareto_front": id_pareto_close, "num_individuals": individuals_selected}
+    obj_next = {"id_pareto_front": id_pareto_close, "num_individuals": individuals_selected, "id_pareto_inds": id_pareto_inds}
 
     all_inds_sel[storage_pos][id_pareto_close]["reference_point"] = mref
     all_inds_sel[storage_pos][id_pareto_close]["close_individual"] = mclose
@@ -583,8 +590,9 @@ def save_data(user_name, storage_pos, id_pareto, point_reference, num_ind_ref, i
     # se actualizan
     pub_next = rospy.Publisher("next_front_ind", next_front_ind, queue_size=10)
     msg_next = next_front_ind()
-    
+    print("..................")
     msg_next.id_pareto_front = id_pareto_close
+    msg_next.id_pareto_inds = id_pareto_inds
     msg_next.num_individuals = individuals_selected
     msg_next.storage_position = storage_pos
 
@@ -611,16 +619,18 @@ def get_dist_inds(req):
     id_pareto = req.id_pareto_front
 
     # soluciones no dominadas
-    res_obj = load_object_space_ros_non_dom(id_pareto, min_sol=num_individuals_by_front, return_object=True, normalize=NORMALIZATION, non_dominated=True, test_data= LOAD_TEST)
-    # points = load_object_space_ros_non_dom(id_pareto, min_sol=num_individuals_by_front,normalize=NORMALIZATION, test_data=LOAD_TEST, non_dominated=True)
+    res_obj = load_object_space_ros(id_pareto, min_sol=num_individuals_by_front, return_object=True, normalize=NORMALIZATION, non_dominated=True)
+  
     points = res_obj["obj_space"]
-    num_inds = np.array(res_obj["num_inds"])
+    relative_num_ind = np.array(res_obj["num_inds"])
+    relative_id_pareto = np.array(res_obj["id_pareto_inds"])
     
     # indiviudos seleccionados
     sel_inds = select_inds(points)
-    sel_inds = num_inds[sel_inds]
-
-    return get_distributed_individualsResponse(sel_inds)
+    relative_num_ind = relative_num_ind[sel_inds]
+    relative_id_pareto = list(relative_id_pareto[sel_inds])
+  
+    return get_distributed_individualsResponse(relative_id_pareto, relative_num_ind)
 
 
 
@@ -642,7 +652,7 @@ def load_params():
     NORMALIZATION = params["normalization"] == "do_norm"
 
     
-    print("parameters: ", params, "NORMALIZATION", NORMALIZATION, "LOAD_TEST", LOAD_TEST)
+    print("parameters: ", params, "NORMALIZATION", NORMALIZATION)
 
 
 if __name__ == "__main__":

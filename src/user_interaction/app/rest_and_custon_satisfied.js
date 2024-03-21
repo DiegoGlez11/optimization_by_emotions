@@ -75,7 +75,7 @@ btn_continuar.addEventListener("click", () => {
                     his_r[id_pareto][id_ind][storage_pos] = reg;
 
                     // se actualiza el registro de descanso
-                    save_object(his_r, `histo_rest.txt`, `${dir_user}/history`).catch((e) => {
+                    COMM_FUNCT.save_object(his_r, `histo_rest.txt`, `${dir_user}/history`).catch((e) => {
                         console.error(e);
                     });
                 });
@@ -112,7 +112,7 @@ for (let n_score = 0; n_score < score_.length; n_score++) {
         // console.log(score_val);
 
         get_dir().then((dir_user) => {
-            save_object({ score: score_val }, "customer_satisfied_score.txt", dir_user).then(() => {
+            COMM_FUNCT.save_object({ score: score_val }, "customer_satisfied_score.txt", dir_user).then(() => {
                 //ventana de despedida
                 document.body.innerHTML = txt;
             });

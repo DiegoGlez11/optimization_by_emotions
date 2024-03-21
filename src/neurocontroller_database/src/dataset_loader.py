@@ -9,7 +9,7 @@ sys.path.insert(2, f"{home}/catkin_ws/src/emotion_classification/src")
 sys.path.insert(3, f"{home}/catkin_ws/src/neurocontroller_database/src")
 
 from non_dominated import fast_non_dominated_sort
-from utilities import load_json, print_error, print_color, has_attr, root_dir, bcolors
+from utilities import load_json, print_error, print_color, has_attr, root_dir, root_database
 from ROS import get_type_experiment
 
 from brainflow.data_filter import DataFilter
@@ -20,6 +20,7 @@ from neurocontroller_database.srv import load_evaluation_data, load_evaluation_d
 from neurocontroller_database.srv import get_type_id, get_type_idResponse
 from neurocontroller_database.srv import load_dataset, load_datasetResponse
 from neurocontroller_database.srv import load_obj_space, load_obj_spaceResponse
+from neurocontroller_database.srv import load_ind, load_indResponse
 from eeg_signal_acquisition.srv import eeg_block_srv, eeg_block_srvResponse
 from emotion_classification.srv import control_emotions
 import numpy as np
@@ -33,18 +34,81 @@ data_experiment = {}
 pub_eeg = None
 
 
+
+def num_to_fileName(num_gen, is_obj_space=True):
+    
+    str_num = ""
+
+    # num del archivo de generación
+    if num_gen > 0 and num_gen < 10:
+        str_num = f"00{num_gen}"
+    if num_gen >= 10 and num_gen < 100:
+        str_num = f"0{num_gen}"
+    if num_gen >= 100:
+        str_num = f"{num_gen}"
+
+    if str_num == "":
+        raise Exception(f"No existe el numero de generacion {num_gen}")
+    else:
+        if is_obj_space:
+            str_num = f"obj_space_gen_{str_num}.out"
+        else:
+            str_num = f"var_space_gen_{str_num}.out"
+            
+        return str_num
+    
+
+def id_to_fileName(id_pareto, is_obj_space=True, return_id=False):
+    # se separan los id (id compuesto)
+    ids = id_pareto.split("_")
+
+    path_list = []
+    for id in ids:
+        path_ = ""
+
+        # si el id es de un usuario
+        if id.find("/") >= 0:
+            # ruta de inicio de la base de datos
+            path_ = f"{root_database}/database"
+            # se divide el ID
+            s_id = id.split("/")
+            # primer posición es el nombre del usuario
+            path_ += f"/{s_id[0]}"
+            # segunda posición es el ID de la población
+            id_aux = s_id[1]
+        else:
+            path_ = f"{root_database}/database_populations"
+            id_aux = id
+            
+        # se extrae el num gen y el nombre del folder
+        s_id = id_aux.split("-")
+        # pimer posición es el nombre del folder
+        path_ += f"/{s_id[0]}"
+        # segunda posición es el número de generación
+        fileName = num_to_fileName(int(s_id[1]), is_obj_space)
+        # ruta completa del archivo
+        path_ += f"/{fileName}"
+        
+        if return_id:
+            path_list.append([id, path_])
+        else:
+            path_list.append(path_)
+
+    return path_list
+
+
+def check_id(id_pareto):
+    if id_pareto == "" or id_pareto.find("-") < 0:
+        raise Exception("ID Pareto no valido")
+    
+    
 # servicio que carga el espacio de los objetivos
 def load_object_space_(req):
     global root_dir
-    
-    # id_front = req.id_pareto_front
 
     id_pareto = req.id_pareto_front
 
-    # frente válido
-    if id_pareto.find("optimized-") < 0:
-        print("Frente inválido, no se puede cargar", id_pareto)
-        return False
+    check_id(id_pareto)
     
     # si se normaliza el dataset
     if req.normalize:
@@ -56,35 +120,16 @@ def load_object_space_(req):
         min_r = np.array(range_obj["min"][:3])
         max_r = np.array(range_obj["max"][:3])
 
-    # se extran los número del frente
-    id_pareto = id_pareto.split("-")[1]
-    # si es compuesto se extraen los frentes
-    split_id = id_pareto.split(",")
-
     all_space = np.empty((0,3))
-    all_id_pareto = []
     all_num_ind = []
+    all_id_pareto = []
     
-    for num in split_id:
-        # generación a cargar
-        num = int(num)
+    # dir de los archivos
+    dat_inds = id_to_fileName(id_pareto, is_obj_space=True, return_id=True)
+    for id_file in dat_inds:
 
-        # num del archivo de generación
-        if num < 10:
-            str_num = f"00{num}"
-        else:
-            str_num = f"0{num}"
-
-        if req.load_test:
-            type_inds = "optimized_individuals"
-        else:
-            type_inds = "test_individuals"
-
-        # archivo a cargar
-        dir_ = f"{root_dir}_populations/{type_inds}/obj_space_gen_{str_num}.out"
-
-        # se cargan los individuos del frente
-        data = np.array(pd.read_csv(dir_, delim_whitespace=True, header=None))
+        # se cargan los individuos del frente (pos 1 = a dir del archivo)
+        data = np.array(pd.read_csv(id_file[1], delim_whitespace=True, header=None))
         data = data[:, :3]
 
         if req.normalize:
@@ -92,21 +137,26 @@ def load_object_space_(req):
 
         # se guardan los frentes 
         all_space = np.vstack((all_space, data))
-        # id de cada individuo
-        all_id_pareto = np.concatenate((all_id_pareto, [f"optimized-{num}"]*data.shape[0]))
         # num_ind de cada individuo
         all_num_ind = np.concatenate((all_num_ind, np.arange(data.shape[0])))
-    
+        # id de cada individuo (pos 1 = a id de la ruta del archivo)
+        all_id_pareto = np.concatenate((all_id_pareto, [id_file[0]]*data.shape[0]))
+
+    # errores con la carga
     if all_space.shape[0] == 0:
-        print_error("No se encontraron soluciones")
-        return False
+        raise Exception("No se encontraron soluciones")
+    if all_space.shape[0] != all_num_ind.shape[0] or all_num_ind.shape[0] != all_id_pareto.shape[0]:
+        raise Exception(f"Diferencia de tamaños con los datos de los individuos: all_space({all_space.shape[0]}), all_num_ind({all_num_ind.shape[0]}), all_id_pareto({all_id_pareto.shape[0]})")
+    
+    # formato para la red ROS
+    all_num_ind = all_num_ind.astype(int)
 
     # poblaciones sin dominancia
     if not req.non_dominated:
         shape = all_space.shape
-        all_num_ind = all_num_ind.astype(int)
+       
         print(f"num soluciones", all_space.shape)
-        return load_obj_spaceResponse(all_space.reshape(shape[0]*shape[1]), shape[1], shape[0], [], all_num_ind)
+        return load_obj_spaceResponse(all_space.reshape(shape[0]*shape[1]), shape[1], shape[0], all_id_pareto, all_num_ind)
 
 
     # dominancia de pareto
@@ -120,8 +170,8 @@ def load_object_space_(req):
 
     # datos del frente resultante
     sel_space = np.empty((0,3))
-    sel_id_pareto = []
     sel_num_ind = []
+    sel_id_pareto = []
 
     # lista con valores unicos del rank
     rank_list = np.unique(rank_numbers).tolist()
@@ -144,26 +194,44 @@ def load_object_space_(req):
         sel_inds = rank_numbers == rank
 
         # se extraen las soluciones del nivel de rank al que pertenecen
-        sel_id_pareto = np.concatenate((sel_id_pareto, all_id_pareto[sel_inds]))
-        sel_num_ind = np.concatenate((sel_num_ind, all_num_ind[sel_inds]))
         sel_space = np.vstack((sel_space, all_space[sel_inds]))
-
+        sel_num_ind = np.concatenate((sel_num_ind, all_num_ind[sel_inds]))
+        sel_id_pareto = np.concatenate((sel_id_pareto, all_id_pareto[sel_inds]))
+        
         # soluciones faltantes
         size_all = sel_space.shape[0]
 
-    print(f"num soluciones", sel_space.shape,size_req)
-    
-    # individuos
-    size_split = len(split_id)
-    if size_split > 1:
-        sel_num_ind = np.arange(sel_space.shape[0])
+    print(f"{id_pareto} con {sel_space.shape} soluciones >= {size_req}")
 
+    # formato
+    sel_num_ind = sel_num_ind.astype(int)
     # espacio a cargar
     shape = sel_space.shape
 
-    sel_num_ind = sel_num_ind.astype(int)
-    return load_obj_spaceResponse(sel_space.reshape(shape[0]*shape[1]), shape[1], shape[0], [], sel_num_ind)
+    return load_obj_spaceResponse(sel_space.reshape(shape[0]*shape[1]), shape[1], shape[0], sel_id_pareto, sel_num_ind)
    
+
+def load_var_space_(req):
+    
+    id_pareto = req.id_pareto_front
+    num_ind = req.num_ind
+
+    check_id(id_pareto)
+
+    ind_path = id_to_fileName(id_pareto, is_obj_space=False, return_id=False)
+
+    # solo se puede cargar un neurocontrolador a la vez (red neuronal)
+    if len(ind_path) > 1:
+        print_error(f"Solo se puede cargar un neurocontrolador, el ID es compuesto: {id_pareto}")
+    
+
+    data = np.array(pd.read_csv(ind_path[0], delim_whitespace=True, header=None))
+    data = data[num_ind]
+
+    print(ind_path)
+
+    return load_indResponse(data)
+
 
 
 if "__main__" == __name__:
@@ -173,7 +241,8 @@ if "__main__" == __name__:
     # load_srv = rospy.Service("load_dataset", load_dataset, load_ds)
 
     load_obj_srv = rospy.Service("load_object_space", load_obj_space, load_object_space_)
-    
+    load_var_srv = rospy.Service("load_var_space", load_ind, load_var_space_)
+
     # topic_prepro = rospy.Subscriber("preprocessing_eeg_signals", eeg_block, train_intersubject)
     print("Nodo dataset_loader iniciado con éxito");
     rospy.spin()

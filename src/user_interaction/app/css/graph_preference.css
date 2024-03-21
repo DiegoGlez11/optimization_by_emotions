@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* secciones de la interfaz */
 #container_pareto {
   display: inline-flex;
@@ -9,7 +13,7 @@
 
 
 /*+++++++ Tooltip ++++++++++*/
-.tooltip {
+.tooltip_ {
   display: inline;
   position: relative;
   text-decoration: none;
@@ -17,7 +21,7 @@
   left: 4px;
 }
 
-.tooltip:hover:after {
+.tooltip_:hover:after {
   background: #333;
   background: rgba(0, 0, 0, .8);
   border-radius: 5px;
@@ -31,7 +35,7 @@
   width: 150px;
 }
 
-.tooltip:hover:before {
+.tooltip_:hover:before {
   border: solid;
   border-color: transparent black;
   border-width: 6px 6px 6px 0;

@@ -147,25 +147,27 @@ ros_srv_get_user();
 
 function experiment_neuro(control) {
     return new Promise((resolve, reject) => {
-        // estado basal 
-        let is_auto = document.getElementById("check_auto_inds").checked;
+        // // estado basal 
+        // let is_auto = document.getElementById("check_auto_inds").checked;
 
-        if (!is_auto) {
-            // texto de los individuos
-            let individuals_str = document.getElementById("individuals_str").value;
-            // se convierte en array
-            let individuals_array;
-            try {
-                individuals_array = JSON.parse(individuals_str)
-            } catch (error) {
-                alert("Error con el formato de los individuos");
-                console.error(error);
-                reject();
-                return;
-            }
-        } else {
-            individuals_array = [];
-        }
+        // if (!is_auto) {
+        //     // texto de los individuos
+        //     let individuals_str = document.getElementById("individuals_str").value;
+        //     // se convierte en array
+        //     let individuals_array;
+        //     try {
+        //         individuals_array = JSON.parse(individuals_str)
+        //     } catch (error) {
+        //         alert("Error con el formato de los individuos");
+        //         console.error(error);
+        //         reject();
+        //         return;
+        //     }
+        // } else {
+        //     individuals_array = [];
+        // }
+
+        let individuals_array = [];
 
         // se carga el frente 
         let id_pareto = document.getElementById("id_pareto_load").value;

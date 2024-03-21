@@ -1,7 +1,4 @@
 
-
-
-
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Cada vez que se actualiza el explorador se cargan los frentes de pareto
@@ -38,7 +35,7 @@ function get_dir(id_pareto = undefined, num_ind = undefined, type_front = false)
             if (id_pareto == undefined) resolve(dir_user);
             else {
                 //typo del id
-                get_type_id(id_pareto).then((type_name) => {
+                COMM_FUNCT.get_type_id(id_pareto).then((type_name) => {
                     let dir_type_front = `${dir_user}/${type_name}`;
 
                     if (type_front) {

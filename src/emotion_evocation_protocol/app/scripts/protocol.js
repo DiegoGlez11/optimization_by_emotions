@@ -138,8 +138,8 @@ function new_record() {
             name_histo_basal = `history_basal_${res.num}.txt`;
             name_histo_emotion = `history_emotion_evaluation_${res.num}.txt`;
 
-            save_object([], name_histo_basal, dir_h).then(() => {
-                save_object([], name_histo_emotion, dir_h).then(() => {
+            COMM_FUNCT.save_object([], name_histo_basal, dir_h).then(() => {
+                COMM_FUNCT.save_object([], name_histo_emotion, dir_h).then(() => {
                     // num_experiment = res.num;
 
                     let last_obj = {
@@ -147,7 +147,7 @@ function new_record() {
                         history_emotion_evaluation: name_histo_emotion
                     };
                     //guardamos el id
-                    save_object(last_obj, "last_experiment.txt", dir_h).then(() => {
+                    COMM_FUNCT.save_object(last_obj, "last_experiment.txt", dir_h).then(() => {
                         resolve(res);
                     }).catch(() => {
                         reject();
@@ -390,7 +390,7 @@ function add_history(obj, file_name) {
             histo.push(obj);
 
             //se guarda el historial actualizado
-            save_object(histo, file_name, dir).then(() => {
+            COMM_FUNCT.save_object(histo, file_name, dir).then(() => {
                 resolve();
             }).catch((e) => {
                 reject(e);

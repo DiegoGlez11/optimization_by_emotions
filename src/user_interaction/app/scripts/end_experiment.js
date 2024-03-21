@@ -5,15 +5,28 @@
 // +++++++++++++++++++++++++
 
 function end_exp(e) {
-    if (DATA_CONTROL.active_fatigue) return;
+    if (CONTROL_DATA.active_fatigue) return;
     if (INTERFACE_TEST) return;
 
     // tipo de termino de exp
-    let id_p = e.target.getAttribute("id");
+    let id_p = e.target.getAttribute("output_type");
     if (id_p == "a_agree") id_p = "prefered";
-    if (id_p == "a_exit") id_p = "exit";
-    if (id_p == "btn_last_front") id_p = "exit";
-    console.log("end_exp", id_p);
+    else if (id_p == "a_exit") id_p = "exit";
+    else if (id_p == "btn_last_front") id_p = "exit";
+    else {
+        alert("Salida no válida");
+        id_p = "exit";
+    }
+
+    // se detiene el robot
+    control_robot("stop");
+    // se detienen los efectos de sonido
+    sound_control("pause_world");
+    // sonido del motor
+    sound_control("motor_stop");
+    // se detiene el simulador
+    reset_simulation();
+
 
     load_actual_ind().then((actual_ind) => {
         if (actual_ind["id_experiment"] == "" || actual_ind["id_experiment"] == undefined) {

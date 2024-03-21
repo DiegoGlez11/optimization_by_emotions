@@ -252,7 +252,7 @@ function update_params_train(in_params) {
             if (in_params["batch_size"] != undefined) params["batch_size"] = in_params["batch_size"];
 
             // se guardan los parámetros
-            save_object(params, "train_parameters.txt", root_dir).then(() => {
+            COMM_FUNCT.save_object(params, "train_parameters.txt", root_dir).then(() => {
                 control_emotion(params).then(() => {
                     resolve();
                 }).catch((e) => {

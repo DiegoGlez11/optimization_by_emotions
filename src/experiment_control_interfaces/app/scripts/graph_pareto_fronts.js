@@ -441,7 +441,7 @@ function create_fronts_table() {
         let id_pareto = `optimized-${n_gen}`;
         table.push(id_pareto);
     }
-    save_object(table, `fronts_table.txt`, root_dir);
+    COMM_FUNCT.save_object(table, `fronts_table.txt`, root_dir);
 
 }
 // create_fronts_table();

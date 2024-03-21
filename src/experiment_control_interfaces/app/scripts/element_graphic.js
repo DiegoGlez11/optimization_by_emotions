@@ -175,16 +175,7 @@ function load_object(path_obj) {
 }
 
 
-function save_object(obj, name_file, dir_) {
-  return new Promise((res, rej) => {
-    save_data_string(JSON.stringify(obj), name_file, dir_).then((e) => {
-      res(e);
-    }).catch((g) => {
-      console.error("Error al guardar el archivo:", dir_ + "/" + name_file, "\n\n", g);
-      rej(g);
-    });
-  });
-}
+
 
 
 function get_base_dataset(name, mode_graph = undefined, type = "scatter3d") {
@@ -560,7 +551,7 @@ function change_param(key, val) {
       // se cambia el valor
       params[key] = val;
       // se guarda el valor
-      save_object(params, "control_params.txt", root_dir).then(() => {
+      COMM_FUNCT.save_object(params, "control_params.txt", root_dir).then(() => {
         resolve();
       }).catch(() => {
         alert(`No se puede cambiar el valor del parámetro ${key}`);

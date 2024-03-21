@@ -96,7 +96,7 @@ function update_sel(name_sel) {
             dir_obj += "/" + get_selected(sel_user);
             // tipo de id
             let t = get_selected(sel_type_exp);
-            get_type_id(t).then((type) => {
+            COMM_FUNCT.get_type_id(t).then((type) => {
                 dir_obj += "/" + type;
                 update_from_dir(dir_obj, sel_id_experiment, p2, call_back2).then(() => {
                     //ID experimento

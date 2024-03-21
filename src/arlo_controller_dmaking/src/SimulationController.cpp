@@ -176,7 +176,7 @@ SimulationState SimulationController::startSimulation(ArloDriver *aDriver, int m
    control_sound("unpause_world");
    // se quita el color de la ventana de efectos
    simulation_color("hide");
-   ros::Duration(0.1).sleep(); // sleep for half a second
+   ros::Duration(0.1).sleep();
 
    /* Maximum simulation time allowed */
    maxSimTime = maxtime;
@@ -229,28 +229,35 @@ SimulationState SimulationController::startSimulation(ArloDriver *aDriver, int m
    is_driving = false;
    stop_driving = false;
 
-   // // se detiene el robot
-   // geometry_msgs::Twist twist;
-   // twist.angular.z = 0;
-   // twist.linear.x = 0;
-   // vel_pub_.publish(twist);
-   // ros::spinOnce();
-
    // estados finales
    computeSimStats();
 
-   ros::Duration(1.).sleep(); // sleep for half a second
+   // se disminuye la velocidad del robot
+   geometry_msgs::Twist twist;
+   twist.angular.z = 0;
+   twist.linear.x = actuatorValues[0] * 0.5;
+   vel_pub_.publish(twist);
+   ros::spinOnce();
+   ros::Duration(1.).sleep();
+
+   // se detiene el robot
+   geometry_msgs::Twist twist2;
+   twist2.angular.z = 0;
+   twist2.linear.x = 0;
+   vel_pub_.publish(twist2);
+   ros::spinOnce();
+   ros::Duration(2.).sleep();
+
+   // se deteienen los efectos de sonido (incluido el motor)
+   control_sound("stop_effects");
+   // se ocultan los afectos
+   simulation_color("hide");
 
    // se reinicia la simulación
    ros::service::call("/gazebo/reset_simulation", gazeboParams);
 
    // solo se deteiene el sonido del motor, los efectos de sonido se mantienen
    // control_sound("motor_stop");
-
-   // se deteienen los efectos de sonido (incluido el motor)
-   control_sound("stop_effects");
-   // se ocultan los afectos
-   simulation_color("hide");
 
    return arloState;
 }

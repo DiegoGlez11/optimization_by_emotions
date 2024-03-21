@@ -1,4 +1,4 @@
-function save_emo_eval(id_pareto, num_ind, storage_pos) {
+function save_emo_eval(id_pareto, id_pareto_ind, num_ind, storage_pos) {
     return new Promise((resolve, reject) => {
         // id del ind
         let id_ind = `ind_${num_ind}`;
@@ -29,7 +29,7 @@ function save_emo_eval(id_pareto, num_ind, storage_pos) {
 
 
                 // se actualiza el historial
-                save_object(histo, "emotion_evaluation.txt", dir_histo).then(() => {
+                COMM_FUNCT.save_object(histo, "emotion_evaluation.txt", dir_histo).then(() => {
                     // se envía la emoción si aplica
                     if (EMOTIONS_CAPTURE_MODE != "sam") {
                         resolve();
@@ -40,10 +40,11 @@ function save_emo_eval(id_pareto, num_ind, storage_pos) {
                     get_actual_user().then((user_name) => {
                         let pub = rosnodejs.nh.advertise("/emotional_prediction", "emotion_classification/emotional_prediction");
                         let msg = { user_name: user_name };
-                        msg["id_experiment"] = id_pareto;
+                        msg["id_pareto"] = id_pareto;
+                        msg["id_pareto_ind"] = id_pareto_ind;
                         msg["num_ind"] = num_ind;
-                        msg["storage_pos"] = storage_pos;
                         msg["emotion_value"] = [valence, arousal];
+                        msg["storage_pos"] = storage_pos;
 
                         pub.publish(msg);
                         resolve();
@@ -62,7 +63,7 @@ function save_emo_eval(id_pareto, num_ind, storage_pos) {
     });
 }
 
-function show_emo_slider(id_pareto, num_ind, storage_pos, random = false) {
+function show_emo_slider(id_pareto, id_pareto_ind, num_ind, storage_pos, random = false) {
     return new Promise((resolve, reject) => {
         if (id_pareto == "" || num_ind < 0 || storage_pos < 0) {
             reject("Error: valores inválidos para la evaluación");
@@ -85,7 +86,7 @@ function show_emo_slider(id_pareto, num_ind, storage_pos, random = false) {
             //se desbloquea la gráfica de los frentes
             document.getElementById("window_block").style.visibility = "hidden";
 
-            save_emo_eval(id_pareto, num_ind, storage_pos).then(() => {
+            save_emo_eval(id_pareto, id_pareto_ind, num_ind, storage_pos).then(() => {
                 let event = new Event("save_emotion", { bubbles: true });
                 btn_emo_slider.dispatchEvent(event);
 

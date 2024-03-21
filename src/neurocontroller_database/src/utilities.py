@@ -8,6 +8,8 @@ from IPython.display import display
 home = expanduser("~")
 #dirección raiz
 root_dir = home+"/catkin_ws/src/neurocontroller_database/database"
+POPULATION_DATABASE_DIR = f"{home}/catkin_ws/src/neurocontroller_database/database_populations"
+root_database = f"{home}/catkin_ws/src/neurocontroller_database"
 
 def get_users(type_user="sam"):
     dirs = os.listdir(root_dir)

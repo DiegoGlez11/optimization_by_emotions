@@ -65,6 +65,8 @@
     const eeg_signal_acquisition = rosnodejs.require('eeg_signal_acquisition').srv;
     const arlo_controller_dmaking = rosnodejs.require('arlo_controller_dmaking').srv;
     const user_interaction = rosnodejs.require("user_interaction").srv;
+    // common funtions
+    COMM_FUNCT = require(homedir + "/catkin_ws/src/experiment_control_interfaces/app/common_functions.js");
 
     let dataset_chartjs = { data: [], label: "", pointBackgroundColor: [randomColor()] };
 
@@ -80,18 +82,21 @@
     var INTERFACE_TEST = false;
 
 
-    // guarda la info de los frentes de pareto, utilizada para crear las gráficas
-    let ds_fronts = {};
-    // pos de los individuos en su frente correspondiente
-    var pos_ind = {};
+    // guarda la info de los frentes de pareto,
+    let PARETO_DATA = {};
     // fila de frentes a cargar en la interfaz
     var DATA_FRONT = [];
+    var PARETO_QUEUE = {};
     // datos de control del flujo
-    var DATA_CONTROL = { select_ind: false };
+    var CONTROL_DATA = { select_ind: false, active_fatigue: false, last_front_all: false, actual_front: "", pos_actual_ind: 0 };
 
 
     // color inicial de los puntos
     var color_point = "rgba(173, 27, 27, 0.61)";
+    // color of selected point
+    var color_sel = "rgb(64, 162, 227)";
+    // color of a blocked point
+    var color_block = "rgb(12, 53, 158)";
     // color de éxito 
     var color_success = "green";
     // color de error
@@ -112,6 +117,7 @@
 </head>
 
 <body id="user_body">
+  <button class="btn btn-primary">Button</button>
 
   <div id="container_graph">
 
@@ -158,11 +164,12 @@
       <!-- botones de control -->
       <div style="display: inline-flex; width: 100%">
         <div class="btn_exp">
-          <a href="#" id="a_agree" style="font-size: 20px; width: 360px;">Conforme con la solución</a>
+          <a href="#" id="a_agree" style="font-size: 20px; width: 360px;" output_type="agree">Conforme con la
+            solución</a>
         </div>
 
         <div class="btn_exp">
-          <a href="#" id="a_exit" style="width: 140px;">Salir</a>
+          <a href="#" id="a_exit" style="width: 140px;" output_type="exit">Salir</a>
         </div>
 
         <!-- <a href="#" class="next round" id="next_individual">&#8250;</a> -->
@@ -263,7 +270,7 @@
     <div id="wrap_last_front">
       <h1>Límite de neurocontroladores</h1>
       <div id="wrap_btn_last_front">
-        <button id="btn_last_front" class="button-80">Salir</button>
+        <button id="btn_last_front" class="button-80" output_type="exit">Salir</button>
       </div>
     </div>
   </div>
@@ -284,7 +291,7 @@
 
       <div id="container_btn_end">
         <div id="btn_end_left">
-          <button id="btn_si" class="btn_si_no" value="end_window">Sí</button>
+          <button id="btn_si" class="btn_si_no" value="end_window" output_type="exit">Sí</button>
         </div>
         <div id="btn_end_right">
           <button id="btn_no" class="btn_si_no">No</button>
@@ -412,7 +419,6 @@
       </div>
     </div>
   </div> -->
-
 
 
   <script src="../scripts/ROS_funtions.js"></script>

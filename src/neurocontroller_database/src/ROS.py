@@ -27,56 +27,57 @@ def get_type_experiment(id):
         print("Error al obtener el tipo de ID", e)
 
 
-# carga una poblacion
-def load_object_space_ros(id_pareto, num_inds=None, return_object=False):
-    global all_fronts, metadata_reg, metadata_array
+# # carga una poblacion
+# def load_object_space_ros(id_pareto, num_inds=None ,return_object=False):
+#     global all_fronts, metadata_reg, metadata_array
 
-    rospy.wait_for_service("load_obj_space")
+#     if type(num_inds) != list and num_inds != None:
+#         raise Exception(f"Error al cargar el espacio de los objetivo: id_pareto={id_pareto}: num_inds={num_inds}")
 
-    try:
-        load_objetives = rospy.ServiceProxy("load_obj_space", load_obj_space)
-        res = load_objetives(id_pareto, 0)
+#     if num_inds == None:
+#         num_inds = 0
+
+#     rospy.wait_for_service("load_object_space")
+
+#     try:
+#         load_objetives = rospy.ServiceProxy("load_obj_space", load_obj_space)
+#         res = load_objetives(id_pareto, num_inds, NORMALIZATION, )
        
-        # se pasa a numpy
-        data = np.array(res.obj_space)
-        # 1D to 2D
-        data = data.reshape((res.pop_size, res.num_obj))
-        # solo los objetivos
-        data = data[:,:3]
+#         # se pasa a numpy
+#         data = np.array(res.obj_space)
+#         # 1D to 2D
+#         data = data.reshape((res.pop_size, res.num_obj))
+#         # solo los objetivos
+#         data = data[:,:3]
 
-        if return_object:
-            if type(num_inds) == list:
-                return {"obj_space":data[num_inds], "num_inds":num_inds}
-            else:
-                return {"obj_space":data, "num_inds":np.arange(data.shape[0])}
-
-
-        if type(num_inds) == list:
-            return data[num_inds]
-        else:
-            return data
-
-    except rospy.ServiceException as e:
-        print("Error al cargar la poblacion", e)
+#         if return_object:
+#             if type(num_inds) == list:
+#                 return {"obj_space":data[num_inds], "num_inds":num_inds}
+#             else:
+#                 return {"obj_space":data, "num_inds":np.arange(data.shape[0])}
 
 
+#         if type(num_inds) == list:
+#             return data[num_inds]
+#         else:
+#             return data
 
-# def chebyshev_distance(x, y):
-#     dist = np.abs(y-x)
-#     dist = np.max(dist, axis=1)
-#     return dist
+#     except rospy.ServiceException as e:
+#         print("Error al cargar la poblacion", e)
 
 
 
+
+# load_object_space_ros_non_dom
 # carga una poblacion
-def load_object_space_ros_non_dom(id_pareto, min_sol=0, return_object=False, normalize=True, non_dominated=True, test_data=False):
+def load_object_space_ros(id_pareto, min_sol=0, return_object=False, normalize=True, non_dominated=True):
     global all_fronts, metadata_reg, metadata_array
 
     rospy.wait_for_service("load_object_space")
 
     try:
         load_objetives = rospy.ServiceProxy("load_object_space", load_obj_space)
-        res = load_objetives(id_pareto, min_sol, normalize, non_dominated, test_data)
+        res = load_objetives(id_pareto, min_sol, normalize, non_dominated)
 
         # se pasa a numpy
         data = np.array(res.obj_space)
@@ -85,20 +86,10 @@ def load_object_space_ros_non_dom(id_pareto, min_sol=0, return_object=False, nor
         # solo los objetivos
         data = data[:,:3]
 
-        # # soluciones equidistantes
-        # if equidistant_solutions:
-        #     # soluciones extremas
-        #     chebyshev_distance()
-
-
         if return_object:
-            return {"obj_space":data, "num_inds":res.num_inds, "id_paretos": res.id_pareto_fronts}
+            return {"obj_space":data, "num_inds":res.relative_num_ind, "id_pareto_inds": np.array(res.relative_id_pareto)}
         else:
             return data
 
-        # if type(num_inds) == list:
-        #     return data[num_inds]
-        # else:
-        #     return data
     except rospy.ServiceException as e:
         print("Error al cargar la poblacion no dominada", e)

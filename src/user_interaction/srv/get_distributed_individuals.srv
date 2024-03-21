@@ -1,3 +1,4 @@
 string id_pareto_front
 ---
-int32[] num_individuals
+string[] relative_id_pareto
+int32[] relative_num_ind

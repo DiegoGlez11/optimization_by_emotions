@@ -1,11 +1,13 @@
 
 
+
 function create_table_obj(head) {
 
+    // creación de la tabla
     let table = document.createElement("table");
     table.setAttribute("id", "inds_table");
 
-    // head
+    // fila de encabezado
     let th = document.createElement("tr");
     th.setAttribute("class", "t_head");
     for (let i = 0; i < head.length; i++) {
@@ -13,34 +15,39 @@ function create_table_obj(head) {
         t.innerHTML = head[i];
         th.appendChild(t);
     }
+    //  se agrega el encabezado
     table.appendChild(th);
+
+    // eventos de la tabla
     table.onmouseover = mouseover_ind;
     table.onclick = click_ind;
     table.onmouseleave = mouseleave_ind;
 
+    // contenedor
     let container = document.createElement("div");
-    container.setAttribute("id", "container_table_obj")
-    container.appendChild(table);
+    container.setAttribute("id", "container_table_obj");
 
-
-    // if (EMOTIONS_CAPTURE_MODE == "traditional") {
+    // texto debajo de la tabla
     let txt = document.createElement("div");
     txt.setAttribute("id", "msg_table_obj");
     txt.innerHTML = "Click en la relación de tu preferencia";
-    container.appendChild(txt);
-    // }
 
+    // se agreagn los elementos
+    container.appendChild(txt);
+    container.appendChild(table);
+
+    // btn siguiente
     let btn_next = document.createElement("a");
     btn_next.setAttribute("class", "next round");
     btn_next.setAttribute("id", "next_individual");
     btn_next.innerHTML = "siguiente robot &#8250;";
     btn_next.onclick = function () {
-        if (Object.keys(ds_fronts).length == 0) {
+        if (Object.keys(PARETO_DATA).length == 0) {
             alert("No hay individuos cargados");
         } else {
             if (SELECTION_MODE == "sel_automatic") return;
 
-            if (!DATA_CONTROL.select_ind) {
+            if (!CONTROL_DATA.select_ind) {
                 // console.log("event front from btn_next_individual");
                 send_data_front();
             } else {
@@ -49,6 +56,7 @@ function create_table_obj(head) {
         }
     }
 
+    // se oculta o muestra el btn siguiente
     if (EMOTIONS_CAPTURE_MODE == "traditional") {
         btn_next.style.visibility = "hidden";
         txt.style.visibility = "";
@@ -56,34 +64,31 @@ function create_table_obj(head) {
         btn_next.style.visibility = "";
         txt.style.visibility = "hidden";
     }
-
     container.appendChild(btn_next);
 
-
-    // return table;
     return container;
 }
 
 
-function table_add_data(table, data_ind, num_inds, id_pareto) {
+function table_set_data(table, ds, id_pareto) {
     let aux = table.childNodes[0];
 
     table.innerHTML = "";
     table.appendChild(aux);
-    table.setAttribute("id_pareto", id_pareto);
 
     // data
-    for (let i = 0; i < data_ind["x"].length; i++) {
+    for (let i = 0; i < ds["x"].length; i++) {
         let tr = document.createElement("tr");
         tr.setAttribute("class", "row");
-        tr.setAttribute("id", `${id_pareto}/ind_${num_inds[i]}`);
-        tr.setAttribute("id_pareto", id_pareto);
-        tr.setAttribute("num_ind", num_inds[i]);
+        tr.setAttribute("id_ind", `${ds.relative_id_pareto[i]}/ind_${ds.relative_num_ind[i]}`);
+        tr.setAttribute("position", i);
+        tr.setAttribute("relative_id_pareto", ds.relative_id_pareto[i]);
+
         if (i % 2 != 0) tr.classList.add("pair_r");
 
-        ["x", "y", "z"].forEach((key) => {
+        ["x", "y", "obj3"].forEach((key) => {
             let td = document.createElement("td");
-            td.innerHTML = data_ind[key][i];
+            td.innerHTML = ds[key][i];
             tr.appendChild(td);
 
             if (key != "z") td.setAttribute("class", "data_td");
@@ -104,23 +109,16 @@ function mouseover_ind(e) {
     if (c.search("row") < 0) return;
 
     // datos del ind
-    let id_pareto = row.getAttribute("id_pareto");
-    let num_ind = row.getAttribute("num_ind");
+    let id_pareto = row.getAttribute("relative_id_pareto");
     // pos del ind
-    let pos = pos_ind[id_pareto][`ind_${num_ind}`];
+    let pos = row.getAttribute("position");
+
     // datos del frente
-    let ds = ds_fronts[id_pareto];
-
-    // si es ind seleccionado
-    // let is_sel = ds.is_selected[pos];
-    // si ya está seleccionado el ind
-    // if (is_sel) {
-    //     return;
-    // }
-
+    let ds = PARETO_DATA[id_pareto];
 
     // cambio de color
     for (let i = 0; i < ds.line.color.length; i++) {
+        if (ds.is_selected[i]) continue;
         ds.line.color[i] = 0.25;
     }
     ds.line.color[pos] = 1;
@@ -136,7 +134,7 @@ function mouseover_ind(e) {
 
 
     // se actualiza la gráfica
-    Plotly.react(GRAPH_OBJ_SPACE, Object.values(ds_fronts), get_layout(TYPE_GRAPH), { displaylogo: false, modeBarButtonsToRemove: ["zoom2d", 'lasso2d', "select2d", "toImage"] });
+    Plotly.react(GRAPH_OBJ_SPACE, Object.values(PARETO_DATA), get_layout(TYPE_GRAPH), { displaylogo: false, modeBarButtonsToRemove: ["zoom2d", 'lasso2d', "select2d", "toImage"] });
 }
 
 function mouseleave_ind(e) {
@@ -149,8 +147,9 @@ function mouseleave_ind(e) {
 
     // datos del ind
     let id_pareto = table.getAttribute("id_pareto");
+
     // datos del frente
-    let ds = ds_fronts[id_pareto];
+    let ds = PARETO_DATA[id_pareto];
     if (ds == undefined) return;
 
 
@@ -162,18 +161,21 @@ function mouseleave_ind(e) {
         else
             cont++;
     }
+
     if (cont < ds.line.color.length) {
         ds.dimensions[0].constraintrange = undefined;
         // se actualiza la gráfica
-        Plotly.react(GRAPH_OBJ_SPACE, Object.values(ds_fronts), get_layout(TYPE_GRAPH), { displaylogo: false, modeBarButtonsToRemove: ["zoom2d", 'lasso2d', "select2d", "toImage"] });
+        Plotly.react(GRAPH_OBJ_SPACE, Object.values(PARETO_DATA), get_layout(TYPE_GRAPH), { displaylogo: false, modeBarButtonsToRemove: ["zoom2d", 'lasso2d', "select2d", "toImage"] });
     }
 }
 
-// solo funciona con modo tradicional y grafica parallel coordinates
+
+// solo funciona con modo tradicional y gráfica parallel coordinates
 function click_ind(e) {
     if (EMOTIONS_CAPTURE_MODE != "traditional") return;
     if (TYPE_GRAPH != "parcoords") return;
-    if (DATA_CONTROL.select_ind) {
+
+    if (CONTROL_DATA.select_ind) {
         console.error("Ejecutando individuo");
         return;
     }
@@ -187,15 +189,8 @@ function click_ind(e) {
 
     // id del frente
     let id_pareto = row.getAttribute("id_pareto");
-    // datos del frente
-    let ds = ds_fronts[id_pareto];
-    // num del individuo
-    let num_ind = row.getAttribute("num_ind");
-    num_ind = parseInt(num_ind);
-    // id del experimento
-    let storage_pos = ds.storage_pos;
-    // pos de los datos del ind
-    let pos = pos_ind[id_pareto][`ind_${num_ind}`];
+    // pos del ind
+    let pos = row.getAttribute("position");
 
     // si es ind seleccionado
     let is_sel = ds.is_selected[pos];
@@ -205,22 +200,23 @@ function click_ind(e) {
         return;
     }
 
-    // cambio de estado de los puntos a seleccionados
+    // datos del frente
+    let ds = PARETO_DATA[id_pareto];
+
+    // cambio de estado de los puntos seleccionados
     for (let i = 0; i < ds.is_selected.length; i++) {
-        if (i != pos && !ds.is_selected[i]) {
+        if (i != pos) {
             ds.is_selected[i] = true;
             // se actualizan los ind de la gráfica
-            update_graph(id_pareto, ds.num_ind[i], false);
+            update_graph(id_pareto, ds.relative_id_pareto[i], ds.relative_num_ind[i], false);
             // vista de la fila
-            document.getElementById(`${id_pareto}/ind_${ds.num_ind[i]}`).style.background = "rgb(180, 179, 179)";
+            document.getElementById(`${ds.id_pareto_ind[i]}/ind_${ds.num_ind[i]}`).style.background = "rgb(180, 179, 179)";
         }
     }
+    // vista de la fila
+    document.getElementById(`${id_pareto}/ind_${ds.num_ind[pos]}`).style.background = "blue";
 
-    // console.error("click in", id_pareto, "num_ind", num_ind, "storage_pos", storage_pos);
-    // console.log("event front from click parcoords");
 
-    // se eliminan los datos del frente
-    DATA_FRONT = [];
     // se envía el ind seleccionado
-    send_data_front(id_pareto, [num_ind], storage_pos);
+    send_data_front(id_pareto, ds.id_pareto_ind[pos], ds.num_ind[pos], ds.storage_pos);
 }

@@ -87,36 +87,6 @@ function create_id(key, dir) {
 }
 
 
-function save_data_string(str, name_file, dir_) {
-    return new Promise((resolve, reject) => {
-        let srv_str = rosnodejs.nh.serviceClient("/save_data_string", "neurocontroller_database/save_data_string");
-        let srv_param = new neurocontroller_database.save_data_string.Request();
-        srv_param.data_string = str;
-        srv_param.directory = dir_;
-        srv_param.name_file = name_file;
-
-        srv_str.call(srv_param).then((res) => {
-            resolve(res);
-        }).catch((e) => {
-            console.error("Error al guardar la cadena de texto");
-            reject(e);
-        });
-    });
-}
-
-
-function save_object(obj, name_file, dir_) {
-    return new Promise((res, rej) => {
-        save_data_string(JSON.stringify(obj), name_file, dir_).then((e) => {
-            res(e);
-        }).catch((g) => {
-            console.error("Error al guardar el archivo:", dir_ + "/" + name_file, "\n\n", g);
-            rej(g);
-        });
-    });
-}
-
-
 
 
 function load_object(path_obj) {

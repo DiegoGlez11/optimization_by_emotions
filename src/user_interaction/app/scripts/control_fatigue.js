@@ -21,12 +21,17 @@ function save_fatigue_eval(id_pareto, storage_pos, random = false) {
                 data_exp[id_pareto][storage_pos] = { value: value };
 
                 // guardado del valor de fatiga
-                save_object(data_exp, "fatigue.txt", `${dir_user}/history`).then(() => {
+                COMM_FUNCT.save_object(data_exp, "fatigue.txt", `${dir_user}/history`).then(() => {
 
                     if (value < 0.5 && !random) {
                         //se muestra la ventana si se desea terminar el experimento
                         // document.getElementById("container_fatigue").style.height = "100%";
                         // document.getElementById("container_fatigue").style.visibility = "visible";
+
+                        // let btn = document.getElementById("btn_si");
+                        // btn.setAttribute("id", "a_exit");
+
+                        CONTROL_DATA.active_fatigue = false;
                         show_one_window("fatigue");
 
                         document.getElementById("btn_no").onclick = () => {
@@ -39,8 +44,8 @@ function save_fatigue_eval(id_pareto, storage_pos, random = false) {
                     }
 
 
-                }).catch(() => {
-                    console.error("Error al guardar la fatiga");
+                }).catch((e) => {
+                    console.error(`Error al guardar la fatiga ${e}`);
                     reject();
                 });
             });
@@ -58,25 +63,21 @@ function show_fatigue_slider(id_pareto, storage_pos, random = false) {
             reject("Error: valores inválidos para la fatiga");
             return;
         }
-        DATA_CONTROL.active_fatigue = true;
+        CONTROL_DATA.active_fatigue = true;
 
         // se muestra el slider de fatiga
-        let container_slider_fatigue = document.getElementById("right_metric");
+        let container_slider_fatigue = document.getElementById("right_metric");//container_metric_fatigue, right_metric
         container_slider_fatigue.style.visibility = "visible";
         show_blink(container_slider_fatigue, color_success);
-
 
         let f_end = function () {
             container_slider_fatigue.style.visibility = "hidden";
 
             save_fatigue_eval(id_pareto, storage_pos, random).then(() => {
-                DATA_CONTROL.active_fatigue = false;
-                if (DATA_CONTROL.last_front_all == true) {
-                    show_one_window("lim_neuro");
-                }
+                CONTROL_DATA.active_fatigue = false;
                 resolve();
             }).catch((e) => {
-                DATA_CONTROL.active_fatigue = false;
+                CONTROL_DATA.active_fatigue = false;
                 console.error(e);
                 reject();
             });

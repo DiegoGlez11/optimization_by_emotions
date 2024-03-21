@@ -1,150 +1,3 @@
-//----------------------------------------
-//--------- crear input con tooltip -----------------
-//-----------------------------------------
-
-// function add_tooltip_and_blink(elem, tooltip_msg) {
-//   elem.setAttribute("class", "blink_show");
-//   let btn_update = add_tooltip(elem, tooltip_msg);
-//   let c1 = document.createElement("div");
-//   c1.setAttribute("class", "blink");
-//   c1.appendChild(btn_update);
-//   let c2 = document.createElement("div");
-//   c2.appendChild(c1);
-
-//   return c2;
-// }
-
-// function add_tooltip(elem, tooltip_msg) {
-//   let tooltip = document.createElement("a");
-//   tooltip.setAttribute("alt", tooltip_msg);
-//   tooltip.setAttribute("class", "tooltip");
-
-//   tooltip.appendChild(elem);
-//   return tooltip;
-// }
-
-//----------------------------------------
-//--------- crear input ROS -----------------
-//-----------------------------------------
-// async function create_input_ros(type_input, name, service, msg_type, callback_prepare_msg, callback_ros = undefined, tooltip_txt = "") {
-//   let elem = document.createElement("div");
-//   let name_clean = name.replace(/\s/g, '');
-//   let lab = document.createElement("label");
-//   lab.setAttribute("for", name_clean);
-//   lab.innerHTML = name;
-//   let event_ = undefined;
-
-//   if (type_input == "button2") {
-//     input_change = document.createElement("button");
-//     event_ = "click";
-//   }
-//   if (type_input == "select") {
-//     let models = ["EEGNet", "DeepConvNet", "ShallowConvNet", "DeepForest"]
-//     input_change = create_select(models);
-//     event_ = "change";
-//   } else {
-//     input_change = document.createElement("input");
-//     input_change.setAttribute("type", type_input);
-//   }
-//   if (type_input != "button" && type_input != "button2") {
-//     elem.appendChild(lab);
-//   }
-//   //tooltip
-//   let in_elem = input_change;
-//   input_change = add_tooltip(input_change, tooltip_txt);
-
-//   in_elem.setAttribute("class", "blink_show");
-//   let blink = document.createElement("div");
-//   blink.setAttribute("class", "blink");
-//   blink.appendChild(input_change);
-//   input_change = blink;
-
-//   if (type_input == "button") {
-//     event_ = "click";
-//     in_elem.setAttribute("value", name);
-//   }
-
-//   if (type_input == "checkbox") {
-//     event_ = "click";
-//   }
-//   if (type_input == "number" || type_input == "text" || type_input == "file") {
-//     in_elem.setAttribute("id", name_clean);
-//     event_ = "keypress";
-//   }
-
-//   //se agrega el evento al input
-//   input_change.addEventListener(event_, async (e) => {
-//     if (type_input == "number" || type_input == "text") {
-//       if (!(e.key == "Enter" || e.keyCode == 13)) return;
-//     }
-
-//     await new Promise((res, rej) => {
-//       let msg = callback_prepare_msg(in_elem);
-//       res(msg);
-//     }).then((msg) => {
-//       if (msg == undefined) return;
-//       console.log("mensaje enviado", msg);
-//       console.log(service, msg_type);
-//       //conexión con el servicio ROS
-//       let srv_ = rosnodejs.nh.serviceClient(service, msg_type);
-//       srv_.call(msg).then((res) => {
-//         show_blink(blink, color_success);
-//         if (callback_ros != undefined) callback_ros(res);
-//       }).catch((e) => {
-//         show_blink(blink, color_error);
-//         console.log("Error con el servicio: ", service, " type: ", msg_type, "\n", e);
-//       });
-//     });
-//   });
-
-//   elem.appendChild(input_change);
-
-//   //funcion para enviar un dato a la red ros
-//   elem["ros_send_data"] = function (msg) {
-//     //conexión con el servicio ROS
-//     let ros_srv = rosnodejs.nh.serviceClient(service, msg_type);
-//     ros_srv.call(msg).then((res) => {
-//       if (callback_ros != undefined) callback_ros(res);
-//       show_blink(blink, color_success);
-//     }).catch((e) => {
-//       show_blink(blink, color_error);
-//       console.log("Error con el servicio: ", service, " type: ", msg_type, "\n", e);
-//     });
-//   };
-//   //devuelve el input element
-//   elem["get_input"] = () => {
-//     return in_elem;
-//   };
-
-//   //guarda el tipo de evento
-//   elem["type_event"] = event_;
-//   return elem;
-// }
-
-
-// function create_select(options, evals = undefined) {
-//   let input_change = document.createElement("select");
-//   for (let i = 0; i < options.length; i++) {
-//     let opt = document.createElement("option");
-//     opt.setAttribute("value", options[i].replace(/\s/g, '_'));
-//     opt.innerHTML = options[i];
-//     input_change.appendChild(opt);
-
-//     // if (evals != undefined) {
-//     //   console.error("in eval create");
-//     //   opt.addEventListener("click", () => {
-//     //     console.log(options[i]);
-//     //     console.log(evals[options[i]]);
-//     //   });
-//     // }
-//   }
-//   return input_change;
-// }
-
-
-
-
-
 
 
 function show_blink(elem, color) {
@@ -175,15 +28,6 @@ function load_object(path_obj) {
 }
 
 
-function save_object(obj, name_file, dir_) {
-  return new Promise((res, rej) => {
-    save_data_string(JSON.stringify(obj), name_file, dir_).then((e) => {
-      res(e);
-    }).catch((g) => {
-      rej(g);
-    });
-  });
-}
 
 
 
@@ -341,6 +185,7 @@ function show_one_window(name) {
 }
 
 
+
 function hide_all_windows() {
   document.getElementById("container_graph").style.display = "none";
   document.getElementById("container_fatigue").style.display = "none";
@@ -349,9 +194,12 @@ function hide_all_windows() {
   document.getElementById("end_experiment").style.display = "none";
 }
 
+
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 function is_conn_refused(e) {
+  if (e.code == undefined) return false;
   return e.code.search("CONNREFUSED") >= 0;
 }
 
@@ -371,7 +219,7 @@ function update_actual_ind(id_pareto, num_ind, storage_pos) {
         actual_ind["num_ind"] = num_ind;
         actual_ind["storage_pos"] = storage_pos;
 
-        save_object(actual_ind, "actual_ind.txt", user_dir).then(() => {
+        COMM_FUNCT.save_object(actual_ind, "actual_ind.txt", user_dir).then(() => {
           resolve();
         }).catch((e) => {
           console.error(`Error al actualizar el individuo actual: ${id_pareto} ${num_ind} ${storage_pos}`);
@@ -415,7 +263,7 @@ function add_to_roadmap(id_pareto, num_ind, storage_pos) {
         //nuevo registro en el historial
         histo_ind.push({ id_pareto_front: id_pareto, num_ind: num_ind, storage_position: String(storage_pos) });
 
-        save_object(histo_ind, "emotional_roadmap.txt", dir_histo).then(() => {
+        COMM_FUNCT.save_object(histo_ind, "emotional_roadmap.txt", dir_histo).then(() => {
           resolve();
         }).catch((e) => {
           console.error(`Error al actualizar el roadmap: ${id_pareto} ${num_ind} ${storage_pos}`);
@@ -473,7 +321,7 @@ function new_experiment(test_interface = undefined) {
         if (exp_reg["dict"] == undefined) exp_reg["dict"] = {};
         exp_reg["dict"][String(storage_pos)] = storage_pos;
 
-        save_object(exp_reg, "experiment_record.txt", dir_hist).then(() => {
+        COMM_FUNCT.save_object(exp_reg, "experiment_record.txt", dir_hist).then(() => {
           resolve(String(storage_pos));
         }).catch((e) => {
           console.log(`Error al crear un nuevo experimento`);
@@ -509,7 +357,7 @@ function update_experiment(obj_exp, storage_pos) {
         reg_exp["list"][pos] = data_emo;
 
         // se actualiza el experimento
-        save_object(reg_exp, "experiment_record.txt", histo_dir).then(() => {
+        COMM_FUNCT.save_object(reg_exp, "experiment_record.txt", histo_dir).then(() => {
           resolve();
         }).catch((e) => {
           console.error(e);
@@ -586,13 +434,11 @@ function reset_interface() {
       }
 
       // reseteo de los frentes
-      ds_fronts = {};
-      pos_ind = {};
-      // frentes en fila
-      DATA_FRONT = [];
+      PARETO_DATA = {};
+
       // control del flujo
-      DATA_CONTROL.actual_front = "";
-      // DATA_CONTROL.select_ind = false;
+      CONTROL_DATA = { select_ind: false, active_fatigue: false, last_front_all: false, actual_front: "" };
+
       is_select_ind(false);
 
       // gráfica inicial
@@ -671,10 +517,10 @@ function change_mode_selection(mode) {
       if (SELECTION_MODE == "sel_automatic") {
         document.getElementById("next_individual").style.visibility = "hidden";
 
-        if (DATA_FRONT.length >= 0 && !DATA_CONTROL.select_ind) {
-          // console.log("event front from change sel node");
-          send_data_front();
-        }
+        // if (Object.keys(PARETO_DATA.pos_ind).length > 0 && !CONTROL_DATA.select_ind) {
+        //   // console.log("event front from change sel node");
+        //   send_data_front();
+        // }
       } else {
         // document.getElementById("next_individual").style.visibility = "";
         if (btn_next != undefined) btn_next.style.visibility = "";
@@ -695,11 +541,14 @@ function change_mode_selection(mode) {
 // +++++++++++  cambio de la gráfica en la interfaz ++++++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
+
+
 function change_graph(type_g) {
   if (type_g == "scatter" || type_g == "parcoords") {
     TYPE_GRAPH = type_g;
 
-    if (DATA_CONTROL.select_ind) {
+    if (CONTROL_DATA.select_ind) {
       console.error("Se esta ejecutando un individuo. No se puede cambiar la gráfica");
       return false;
     }
@@ -714,6 +563,7 @@ function change_graph(type_g) {
       let pos_obj = get_pos_objectives(index_objectives);
       let t = create_table_obj(pos_obj.names);
       c.appendChild(t);
+
       // console.log(EMOTIONS_CAPTURE_MODE == "traditional", "traditional", EMOTIONS_CAPTURE_MODE);
       // if (EMOTIONS_CAPTURE_MODE == "traditional") {
       //   let txt = document.createElement("div");
@@ -726,13 +576,6 @@ function change_graph(type_g) {
       cont.innerHTML = "";
       cont.appendChild(c);
       cont.appendChild(GRAPH_OBJ_SPACE);
-
-      // cont.insertAdjacentElement("afterbegin", c);
-      // si ya existe la tabla
-      // let t_exist = document.getElementById("inds_table");
-      // let t_exist = document.getElementById("container_table");
-      // if (t_exist == undefined) {
-      // }
 
     } else {
       let msg_tab = document.getElementById("msg_table_obj");
@@ -748,14 +591,14 @@ function change_graph(type_g) {
     }
 
     // no hay datos
-    if (Object.values(ds_fronts).length == 0) {
+    if (Object.values(PARETO_DATA).length == 0) {
       Plotly.react(GRAPH_OBJ_SPACE, [get_base_dataset("", TYPE_GRAPH)], get_layout(TYPE_GRAPH), { displaylogo: false, modeBarButtonsToRemove: ["zoom2d", 'lasso2d', "select2d", "toImage", "autoScale2d"] });
     }
 
     // se resetea el id_actual
-    DATA_CONTROL.actual_front = "";
+    CONTROL_DATA.actual_front = "";
 
-    send_data_front();
+    // send_data_front();
   } else {
     alert(`No existe el tipo de gráfica: ${type_g}`)
     return false;
@@ -775,10 +618,156 @@ function change_norm(type_n) {
     if (type_n == "deactiv_norm") NORMALIZATION = false;
 
     // se resetea el id_actual
-    DATA_CONTROL.actual_front = "";
+    CONTROL_DATA.actual_front = "";
 
-    send_data_front();
+    // send_data_front();
   } else {
     alert(`No existe el tipo de normalización: ${type_n}`)
   }
 }
+
+
+
+
+//----------------------------------------
+//--------- crear input con tooltip -----------------
+//-----------------------------------------
+
+// function add_tooltip_and_blink(elem, tooltip_msg) {
+//   elem.setAttribute("class", "blink_show");
+//   let btn_update = add_tooltip(elem, tooltip_msg);
+//   let c1 = document.createElement("div");
+//   c1.setAttribute("class", "blink");
+//   c1.appendChild(btn_update);
+//   let c2 = document.createElement("div");
+//   c2.appendChild(c1);
+
+//   return c2;
+// }
+
+// function add_tooltip(elem, tooltip_msg) {
+//   let tooltip = document.createElement("a");
+//   tooltip.setAttribute("alt", tooltip_msg);
+//   tooltip.setAttribute("class", "tooltip");
+
+//   tooltip.appendChild(elem);
+//   return tooltip;
+// }
+
+//----------------------------------------
+//--------- crear input ROS -----------------
+//-----------------------------------------
+// async function create_input_ros(type_input, name, service, msg_type, callback_prepare_msg, callback_ros = undefined, tooltip_txt = "") {
+//   let elem = document.createElement("div");
+//   let name_clean = name.replace(/\s/g, '');
+//   let lab = document.createElement("label");
+//   lab.setAttribute("for", name_clean);
+//   lab.innerHTML = name;
+//   let event_ = undefined;
+
+//   if (type_input == "button2") {
+//     input_change = document.createElement("button");
+//     event_ = "click";
+//   }
+//   if (type_input == "select") {
+//     let models = ["EEGNet", "DeepConvNet", "ShallowConvNet", "DeepForest"]
+//     input_change = create_select(models);
+//     event_ = "change";
+//   } else {
+//     input_change = document.createElement("input");
+//     input_change.setAttribute("type", type_input);
+//   }
+//   if (type_input != "button" && type_input != "button2") {
+//     elem.appendChild(lab);
+//   }
+//   //tooltip
+//   let in_elem = input_change;
+//   input_change = add_tooltip(input_change, tooltip_txt);
+
+//   in_elem.setAttribute("class", "blink_show");
+//   let blink = document.createElement("div");
+//   blink.setAttribute("class", "blink");
+//   blink.appendChild(input_change);
+//   input_change = blink;
+
+//   if (type_input == "button") {
+//     event_ = "click";
+//     in_elem.setAttribute("value", name);
+//   }
+
+//   if (type_input == "checkbox") {
+//     event_ = "click";
+//   }
+//   if (type_input == "number" || type_input == "text" || type_input == "file") {
+//     in_elem.setAttribute("id", name_clean);
+//     event_ = "keypress";
+//   }
+
+//   //se agrega el evento al input
+//   input_change.addEventListener(event_, async (e) => {
+//     if (type_input == "number" || type_input == "text") {
+//       if (!(e.key == "Enter" || e.keyCode == 13)) return;
+//     }
+
+//     await new Promise((res, rej) => {
+//       let msg = callback_prepare_msg(in_elem);
+//       res(msg);
+//     }).then((msg) => {
+//       if (msg == undefined) return;
+//       console.log("mensaje enviado", msg);
+//       console.log(service, msg_type);
+//       //conexión con el servicio ROS
+//       let srv_ = rosnodejs.nh.serviceClient(service, msg_type);
+//       srv_.call(msg).then((res) => {
+//         show_blink(blink, color_success);
+//         if (callback_ros != undefined) callback_ros(res);
+//       }).catch((e) => {
+//         show_blink(blink, color_error);
+//         console.log("Error con el servicio: ", service, " type: ", msg_type, "\n", e);
+//       });
+//     });
+//   });
+
+//   elem.appendChild(input_change);
+
+//   //funcion para enviar un dato a la red ros
+//   elem["ros_send_data"] = function (msg) {
+//     //conexión con el servicio ROS
+//     let ros_srv = rosnodejs.nh.serviceClient(service, msg_type);
+//     ros_srv.call(msg).then((res) => {
+//       if (callback_ros != undefined) callback_ros(res);
+//       show_blink(blink, color_success);
+//     }).catch((e) => {
+//       show_blink(blink, color_error);
+//       console.log("Error con el servicio: ", service, " type: ", msg_type, "\n", e);
+//     });
+//   };
+//   //devuelve el input element
+//   elem["get_input"] = () => {
+//     return in_elem;
+//   };
+
+//   //guarda el tipo de evento
+//   elem["type_event"] = event_;
+//   return elem;
+// }
+
+
+// function create_select(options, evals = undefined) {
+//   let input_change = document.createElement("select");
+//   for (let i = 0; i < options.length; i++) {
+//     let opt = document.createElement("option");
+//     opt.setAttribute("value", options[i].replace(/\s/g, '_'));
+//     opt.innerHTML = options[i];
+//     input_change.appendChild(opt);
+
+//     // if (evals != undefined) {
+//     //   console.error("in eval create");
+//     //   opt.addEventListener("click", () => {
+//     //     console.log(options[i]);
+//     //     console.log(evals[options[i]]);
+//     //   });
+//     // }
+//   }
+//   return input_change;
+// }

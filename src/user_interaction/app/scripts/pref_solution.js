@@ -132,7 +132,7 @@ function start_ask1(exp_sam, exp_trad) {
                     let data_sim;
                     if (is_btn == "sam") data_sim = exp_sam;
                     if (is_btn == "traditional") data_sim = exp_trad;
-                    simulate_individual(data_sim.id_pareto_front, data_sim.num_ind).catch((e) => {
+                    COMM_FUNCT.simulate_individual(data_sim.id_pareto_front, data_sim.num_ind).catch((e) => {
                         console.error(e);
                     });
                 }

@@ -1,6 +1,4 @@
 
-let block_exp = {};
-
 
 // control del experimento con ROS
 function control_experiment() {
@@ -15,7 +13,7 @@ function control_experiment() {
 
         // ultimo frente
         if (ctl == "last_front") {
-            DATA_CONTROL.last_front_all = true;
+            CONTROL_DATA.last_front_all = true;
             return true;
         }
 
@@ -30,28 +28,14 @@ function control_experiment() {
         let num_inds;
         if (req.num_inds.length > 0) num_inds = req.num_inds;
 
-        // // se carga un frente de pareto
-        // if (ctl.search("load_pareto_front") >= 0) {
-        //     load_pareto_front(id_pareto, num_inds);
-        // }
-
         // se inicia el experimento desde un frente en especifico
         if (ctl.search("start_experiment") >= 0) {
-            // if (num_inds == undefined) {
-            //     console.error("Inicio de la BCI sin individuos");
-            //     return;
-            // }
-
             play_video(id_pareto, num_inds, req.play_video_intro, req.extend_search);
         }
 
         // se inicia el experimento desde un frente en especifico pero con evalucioanes
         // emocioanles generadas aleatoriamente
         if (ctl.search("test_experiment") >= 0) {
-            // if (num_inds == undefined) {
-            //     console.error("Inicio de la BCI TEST sin individuos");
-            //     return;
-            // }
             start_experiment(id_pareto, num_inds, false, req.extend_search);
         }
 
@@ -61,7 +45,7 @@ function control_experiment() {
                 console.error("No hay individuo para seleccionar en el frente", id_pareto);
                 return;
             }
-            select_ind(id_pareto, req.num_inds[0])
+            select_ind(id_pareto, id_pareto_ind, req.num_inds[0])
         }
 
 
@@ -71,21 +55,6 @@ function control_experiment() {
 }
 control_experiment();
 
-
-function get_distribuited_inds(id_pareto) {
-    return new Promise((resolve, reject) => {
-        let srv = rosnodejs.nh.serviceClient("/get_distributed_individuals", "user_interaction/get_distributed_individuals");
-        let param = new user_interaction.get_distributed_individuals.Request();
-        param.id_pareto_front = id_pareto;
-
-        srv.call(param).then((res) => {
-            resolve(res.num_individuals);
-        }).catch((e) => {
-            console.error(`Error al obtener los individuos distribuidos sobre el frente ${id_pareto}:\n${e}`);
-            reject();
-        });
-    });
-}
 
 
 function start_experiment(id_pareto, sel_inds = undefined, test_interface = false, extend_search = undefined) {
@@ -98,7 +67,7 @@ function start_experiment(id_pareto, sel_inds = undefined, test_interface = fals
             btn_test.innerHTML = "Salir de la prueba de la interfaz";
             btn_test.setAttribute("id", "btn_exit_test");
 
-            // evenbto
+            // evento
             btn_test.onclick = () => {
                 show_one_window("msg_all_window");
                 // texto
@@ -131,50 +100,16 @@ function start_experiment(id_pareto, sel_inds = undefined, test_interface = fals
                         // console.log(Array.isArray(sel_inds), sel_inds);
                         // sin individuos
                         if (sel_inds == undefined || !Array.isArray(sel_inds)) {
-                            get_distribuited_inds(id_pareto).then((individuals) => {
-                                console.log(individuals);
-                                send_data_front(id_pareto, individuals, storage_pos);
+                            get_distributed_inds(id_pareto).then((dist) => {
+                                load_pareto_front(id_pareto, storage_pos, dist.relative_id_pareto, dist.relative_num_ind);
                                 resolve();
                             }).catch((e) => {
                                 reject(e);
                             })
                         } else {
-                            send_data_front(id_pareto, sel_inds, storage_pos);
+                            load_pareto_front(id_pareto, storage_pos, undefined, sel_inds);
                             resolve();
                         }
-
-
-
-                        // // se ocultan las partes gráficas
-                        // document.getElementById("right_metric").style.visibility = "hidden";
-                        // document.getElementById("left_metric").style.visibility = "hidden";
-                        // document.getElementById("window_block").style.visibility = "hidden";
-                        // document.getElementById("window_new_fronts").style.visibility = "hidden";
-                        // document.getElementById("window_last_front").style.visibility = "hidden";
-                        // DATA_FRONT = [];
-                        // DATA_CONTROL.actual_front = "";
-                        // DATA_CONTROL.select_ind = false;
-
-
-                        // // individuos iniciales
-                        // get_dir().then((user_dir) => {
-                        //     let dir_hist = `${user_dir}/history`;
-
-                        //     // primeros ind seleccionados
-                        //     load_object(`${dir_hist}/selected_individuals.txt`).then((histo_sel) => {
-                        //         if (histo_sel.length == undefined) histo_sel = [];
-                        //         histo_sel.push({ id_pareto_front: id_pareto, num_individuals: sel_inds });
-                        //         // registro de los primeros ind seleccionados
-                        //         save_object(histo_sel, "selected_individuals.txt", dir_hist).then((e) => {
-                        //         }).catch((e) => {
-                        //             reject(e);
-                        //         });
-                        //     }).catch((e) => {
-                        //         reject(e);
-                        //     });
-                        // }).catch((e) => {
-                        //     reject(e);
-                        // });
                     }).catch((e) => {
                         reject(e);
                     });
@@ -191,24 +126,70 @@ function start_experiment(id_pareto, sel_inds = undefined, test_interface = fals
 }
 
 
-
-
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 
-function send_data_front(id_pareto = undefined, individuals = undefined, storage_pos = undefined) {
-    if (id_pareto != undefined && individuals != undefined) {
-        DATA_FRONT.push({ id_pareto: id_pareto, individuals: individuals, storage_pos: storage_pos, pos_actual_ind: 0 });
+function send_data_front(id_pareto = undefined, id_pareto_ind = undefined, num_ind = undefined, storage_pos = undefined) {
+    let err = 0;
+    if (id_pareto == undefined) err++;
+    if (num_ind == undefined) err++;
+    if (storage_pos == undefined) err++;
+    if (id_pareto_ind == undefined) err++;
+
+    let txt_err = `No se puede ejecutar el individuo: {id_pareto:${id_pareto}, id_pareto_ind:${id_pareto_ind},num_ind:${num_ind}, storage_pos:${storage_pos}}`;
+    // console.log(id_pareto, id_pareto_ind, num_ind, storage_pos);
+    if (err != 0 && err != 4) throw Error(txt_err);
+
+    // posiciones de los inds en su dataset
+    let position, ds;
+    let is_last = false;
+    let pos_id;
+
+    // get pos of specific ind
+    if (err == 0) {
+        // get dataset of pareto front
+        ds = PARETO_DATA[id_pareto];
+        if (ds == undefined) throw Error(txt_err);
+
+        position = ds["pos_id"][id_pareto_ind][`ind_${num_ind}`];
+
+        if (ds.is_selected[position])
+            throw (`Ya se seleccionó el individuo. id_pareto:${id_pareto} relative_id_pareto:${id_pareto_ind} num_ind:${num_ind}`);
     }
-    let event = new CustomEvent("select_individual");
+
+    // calculate next ind
+    if (err == 4) {
+        // get dataset of pareto front
+        ds = PARETO_DATA[CONTROL_DATA.actual_front];
+        if (ds == undefined) throw Error(txt_err);
+
+
+        for (let i = 0; i < ds.is_selected.length; i++)
+            if (!ds.is_selected[i]) position = i;
+
+        if (position == undefined)
+            throw (`No hay individuo para mostrar. is_selected:${s.is_selected}`);
+    }
+
+    // check if the last ind
+    let count_sel = 0;
+    for (let i = 0; i < ds.is_selected.length; i++) {
+        if (ds.is_selected[i])
+            count_sel++;
+    }
+    if (count_sel == ds.is_selected.length - 1) is_last = true;
+
+    let ind_sel = { dataset: ds, position: position, is_last: is_last };
+    let event = new CustomEvent("select_individual", { "detail": ind_sel });
     GRAPH_OBJ_SPACE.dispatchEvent(event);
 }
 
+
 function is_select_ind(is_sel) {
-    DATA_CONTROL.select_ind = is_sel;
+    CONTROL_DATA.select_ind = is_sel;
 
     let btn_next = document.getElementById("next_individual");
     if (btn_next == undefined) return;
@@ -223,154 +204,130 @@ function is_select_ind(is_sel) {
 function f_error_sel(e) {
     console.error(e);
     // desbloqueo
-    // DATA_CONTROL.select_ind = false;
+    // CONTROL_DATA.select_ind = false;
     is_select_ind(false);
 }
-
-
 
 // captura el evento cuando se termina de seleccionar un individuo
 GRAPH_OBJ_SPACE.addEventListener("select_individual", (e) => {
     let random = false;
 
     // datos del frente
-    let pareto_front = DATA_FRONT[0];
-    // si ya no hay frentes por mostrar
-    if (pareto_front == undefined) {
-        console.error("No hay ningún frente por mostrar");
-        return;
-    }
+    let pareto_front = e.detail;
 
-    if (DATA_CONTROL.select_ind) {
-        console.log("No se puede iniciar la selección. Individuo ejecutando");
-        return;
-    }
-
-    // bloqueo
-    // DATA_CONTROL.select_ind = true;
-    is_select_ind(true);
+    // dataset del frente
+    let ds = e.detail.dataset;
+    // posición del individuo
+    let pos = e.detail.position;
 
     // id del frente
-    let id_pareto = pareto_front.id_pareto;
+    let id_pareto = ds.id_pareto;
+    // id del individuo
+    let id_pareto_ind = ds.relative_id_pareto[pos];
+    // num del individuo
+    let num_ind = ds.relative_num_ind[pos];
     // id del experimento
-    let storage_pos = pareto_front.storage_pos;
-    // nuevo frente a cargar
-    if (DATA_CONTROL.actual_front != id_pareto) {
+    let storage_pos = ds.storage_pos;
 
-        let aux_pareto = ds_fronts[id_pareto];
-        // console.log(aux_pareto);
-        // console.log(id_pareto);
+    let txt_ind = `{id_pareto:${id_pareto}, id_pareto_ind: ${id_pareto_ind},num_ind:${num_ind}, storage_pos:${storage_pos}}`;
 
-        // nuevo frente a cargar
-        load_pareto_front(id_pareto, pareto_front.individuals, storage_pos).then(() => {
-            // registro del nuevo frente
-            DATA_CONTROL.actual_front = id_pareto;
-            // desbloqueo
-            // DATA_CONTROL.select_ind = false;
-            is_select_ind(false);
+    // si ya no hay frentes por mostrar
+    if (pareto_front == undefined) {
+        console.error(`Dataset no cargado: ${txt_ind}`);
+        return;
+    }
 
-            // datos del frente
-            let ds = ds_fronts[id_pareto];
+    // datos completos
+    if (id_pareto == undefined || num_ind == undefined || storage_pos == undefined) {
+        console.error(`Faltan datos para seleccionar el individuo: ${txt_ind}`);
+    }
 
-            // se colorean los ya seleccionados
-            if (aux_pareto != undefined && id_pareto == aux_pareto.id_pareto) {
-                for (let i = 0; i < aux_pareto.is_selected.length; i++) {
-                    if (aux_pareto.is_selected[i]) {
-                        update_graph(id_pareto, aux_pareto.num_ind[i], aux_pareto.storage_pos, false);
-                        ds.is_selected[i] = true;
+    if (CONTROL_DATA.select_ind) {
+        console.log(`Individuo ejecutándose, no se puede cargar el individuo: ${txt_ind}`);
+        return;
+    }
+
+    is_select_ind(true);
+
+    // individuo no seleccionado
+    if (!ds.is_selected[pos]) {
+        select_ind(id_pareto, id_pareto_ind, num_ind, storage_pos, random).then(() => {
+            // se indica que ya fue selecciondo
+            ds.is_selected[pos] = true;
+
+            // si no hay más individuos del frente actual
+            if (pareto_front.is_last) {
+
+                // se manda el punto de referencias
+                if (EMOTIONS_CAPTURE_MODE == "traditional") {
+                    let f_err = function (err) {
+                        let txt = `Error al enviar el individuo preferido`;
+                        if (is_conn_refused(err)) console.error(txt);
+                        else console.error(`${txt}: \n\n${err}`);
                     }
-                }
-            }
 
-            if (EMOTIONS_CAPTURE_MODE == "sam" || EMOTIONS_CAPTURE_MODE == "bci") {
+                    get_actual_user().then((user_name) => {
+                        let ind_values = [ds.x[pos], ds.y[pos], ds.obj3[pos]];
+                        search_new_front(user_name, ind_values, id_pareto, num_ind, storage_pos).catch((e) => {
+                            f_err(e);
+                        });
+                    }).catch((e) => {
+                        f_err(e);
+                    });
+                }
+
+
+                // se muestra el slider de la fatiga
+                show_fatigue_slider(id_pareto, storage_pos, random).then(() => {
+                    // si no hay mas frentes por mostrar
+                    if (CONTROL_DATA.last_front_all == true) {
+                        show_one_window("lim_neuro");
+                        return;
+                    }
+
+                    // se muestra la ventana del cálculo de frentes
+                    let new_fronts = document.getElementById("window_new_fronts");
+                    new_fronts.style.visibility = "visible";
+
+                    // desbloqueo
+                    // CONTROL_DATA.select_ind = false;
+                    is_select_ind(false);
+
+                    let slider_fatigue = document.getElementById("right_metric");
+                    //  si existe un nuevo frente a cargar
+                    let str_obj = slider_fatigue.getAttribute("new_front");
+                    if (str_obj != undefined) {
+                        // se extraen los datos
+                        let new_front = JSON.parse(str_obj);
+                        //reseteo del atributo
+                        slider_fatigue.removeAttribute("new_front");
+                        // carga de la población
+                        load_pareto_front(new_front.id_pareto, new_front.storage_pos, new_front.id_pareto_inds, new_front.individuals);
+                    }
+
+                    // se desactiva la pantalla
+                    setTimeout(() => {
+                        new_fronts.style.visibility = "hidden";
+                        // console.log("event front from fatigue");
+                    }, 8000);
+                }).catch((e) => {
+                    f_error_sel(e);
+                });
+            } else {
+                // desbloqueo
+                is_select_ind(false);
+                console.log("jjjjjjjjjj");
                 if (SELECTION_MODE == "sel_automatic") {
-                    // console.log("event front from load_pareto");
+                    // console.log("event front from ind>0");
+                    // se dispara evento para seleccionar el siguiente ind
                     send_data_front();
                 }
             }
         }).catch((e) => {
             f_error_sel(e);
         });
-        return;
-    }
-
-    // individuo a seleccionar
-    let num_ind = pareto_front.individuals[pareto_front.pos_actual_ind];
-    pareto_front.pos_actual_ind++;
-    // dataset del frente
-    let ds = ds_fronts[id_pareto];
-    // posición del individuo
-    let pos = pos_ind[id_pareto][`ind_${num_ind}`];
-
-    // individuo no seleccionado
-    if (!ds.is_selected[pos]) {
-        // se cambia el num de individuos esperados en el módulo de preferencias
-        change_model_preference(ds.num_ind.length).then(() => {
-
-            select_ind(id_pareto, num_ind, storage_pos, true, random).then(() => {
-                // se indica que ya fue selecciondo
-                ds.is_selected[pos] = true;
-
-                // si no hay más individuos del frente actual
-                if (pareto_front.individuals.length == pareto_front.pos_actual_ind) {
-
-                    // se manda el punto de referencias
-                    if (EMOTIONS_CAPTURE_MODE == "traditional") {
-                        let f_err = function (err) {
-                            let txt = `Error al enviar el individuo preferido`;
-                            if (is_conn_refused(err)) console.error(txt);
-                            else console.error(`${txt}: \n\n${err}`);
-                        }
-                        get_actual_user().then((user_name) => {
-                            let ind_values = [ds.x[pos], ds.y[pos], ds.obj3[pos]];
-                            search_new_front(user_name, ind_values, id_pareto, num_ind, storage_pos).catch((e) => {
-                                f_err(e);
-                            });
-                        }).catch((e) => {
-                            f_err(e);
-                        });
-                    }
-
-                    // se muestra el slider de la fatiga
-                    show_fatigue_slider(id_pareto, storage_pos, random).then(() => {
-                        // se muestra la ventana del cálculo de frentes
-                        let new_fronts = document.getElementById("window_new_fronts");
-                        new_fronts.style.visibility = "visible";
-                        // se elimina el frente actual
-                        DATA_FRONT.splice(0, 1);
-                        // desbloqueo
-                        // DATA_CONTROL.select_ind = false;
-                        is_select_ind(false);
-
-                        send_data_front();
-
-                        // se desactiva la pantalla
-                        setTimeout(() => {
-                            new_fronts.style.visibility = "hidden";
-                            // console.log("event front from fatigue");
-                        }, 8000);
-                    }).catch((e) => {
-                        f_error_sel(e);
-                    });
-                } else {
-                    // desbloqueo
-                    // DATA_CONTROL.select_ind = false;
-                    is_select_ind(false);
-
-                    if (SELECTION_MODE == "sel_automatic") {
-                        // console.log("event front from ind>0");
-                        // se dispara evento para seleccionar el siguiente ind
-                        send_data_front();
-                    }
-                }
-            }).catch((e) => {
-                f_error_sel(e);
-            });
-        }).catch((e) => {
-            f_error_sel(e);
-        });
     } else {
-        console.error(`Ya se seleccionó el individuo: ${id_pareto} ind_${num_ind}`);
+        console.error(`Ya se seleccionó el individuo:`);
     }
 });
 
@@ -386,13 +343,13 @@ rosnodejs.nh.subscribe("/next_front_ind", "user_interaction/next_front_ind", (ms
         let id_pareto = msg.id_pareto_front;
         let storage_pos = msg.storage_position;
         let num_inds = msg.num_individuals;
+        let id_pareto_inds = msg.id_pareto_inds;
 
-        // se agrega a la fila
-        DATA_FRONT.push({ id_pareto: id_pareto, individuals: num_inds, storage_pos: storage_pos, pos_actual_ind: 0 });
+        let new_front = { id_pareto: id_pareto, id_pareto_inds: id_pareto_inds, individuals: num_inds, storage_pos: storage_pos };
+        console.log("new_front", new_front);
 
-        // console.log("event front from ros");
-        // se lanza la señal
-        send_data_front()
+        let slider_fatigue = document.getElementById("right_metric");
+        slider_fatigue.setAttribute("new_front", JSON.stringify(new_front));
     }
 });
 

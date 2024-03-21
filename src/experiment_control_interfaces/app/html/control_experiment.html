@@ -86,6 +86,9 @@
     var color_ind = "green"
 
     var root_dir = homedir + "/catkin_ws/src/neurocontroller_database/database";
+    // common funtions
+    COMM_FUNCT = require(homedir + "/catkin_ws/src/experiment_control_interfaces/app/common_functions.js");
+
   </script>
 
   <!-- Insert this line after script imports -->
@@ -134,12 +137,12 @@
         <input type="text" id="id_pareto_load" value="optimized-10">
       </div>
 
-      <div>
+      <!-- <div>
         <label for="">Individuos</label>
         <input type="text" id="individuals_str" value="[20,35,40, 50]">
         <label for="auto_inds">Automático</label>
         <input type="checkbox" name="auto_inds" id="check_auto_inds" checked>
-      </div>
+      </div> -->
 
     </div>
 

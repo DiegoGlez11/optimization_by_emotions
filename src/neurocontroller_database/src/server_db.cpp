@@ -411,11 +411,15 @@ string get_path_optimized_ind(string id_pareto, string type)
 
         if (num_gen < 10)
             n_gen = "00" + n_gen;
-        else
+        else if (num_gen < 100)
             n_gen = "0" + n_gen;
 
-        path_file = root + "_populations/optimized_individuals/" + type + "_gen_" + n_gen + ".out";
-        cout << path_file << endl;
+        string folder_name = "optimized_individuals";
+        if (id_pareto.find("inline") != std::string::npos)
+            folder_name = "inline";
+
+        path_file = root + "_populations/" + folder_name + "/" + type + "_gen_" + n_gen + ".out";
+        cout << "cargando pesos: " << path_file << endl;
         if (is_file(path_file))
         {
             return path_file;

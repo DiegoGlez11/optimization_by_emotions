@@ -1,5 +1,6 @@
 string id_pareto_front
 int32[] num_individuals
+string[] id_pareto_inds
 string storage_position
 
 float64[] reference_point

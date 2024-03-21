@@ -12,14 +12,14 @@
 
 using namespace std;
 
-
-class ArloDriver {
+class ArloDriver
+{
 public:
 	ArloDriver();
 	virtual ~ArloDriver();
 
-	virtual void driveArlo(vector<double> const & inputs, vector<double>& reaction) = 0;
-    virtual void setParameters(const char *iName, int num_ind=-1);
+	virtual void driveArlo(vector<double> const &inputs, vector<double> &reaction) = 0;
+	virtual void setParameters(const char *iName, int num_ind = -1);
 };
 
 #endif /* SRC_ARLODRIVER_H_ */

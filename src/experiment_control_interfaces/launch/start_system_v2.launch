@@ -9,16 +9,6 @@
         output="screen"
         launch-prefix="gnome-terminal --tab --" />
 
-    <!-- ayuda para calcular las evaluaciones multiclase-->
-    <node name="evaluations_node"
-        pkg="neurocontroller_database"
-        type="evaluations.py"
-        respawn="false"
-        output="screen"
-        launch-prefix="gnome-terminal --tab --" />
-
-    <!-- NODOS DEL ENTRENAMIENTO -->
-    <!-- Carga los datos EEG -->
     <node name="dataset_loader_node"
         pkg="neurocontroller_database"
         type="dataset_loader.py"
@@ -27,21 +17,23 @@
         launch-prefix="gnome-terminal --tab --" />
 
 
-    <!-- preprocesamiento de la señal -->
-    <node name="preprocessing_node"
-        pkg="eeg_signal_acquisition"
-        type="preprocessing"
+    <!-- preferencias -->
+    <node name="preference_model_node"
+        pkg="user_interaction"
+        type="preference_model.py"
         respawn="false"
         output="screen"
         launch-prefix="gnome-terminal --tab --" />
 
-    <!-- predicción de la señal  -->
-    <node name="classification_node"
-        pkg="emotion_classification"
-        type="classification.py"
+    <!-- control de los neurocontroladores con la simulación -->
+    <node name="arlo_controller_node"
+        pkg="arlo_controller_dmaking"
+        type="start_robot.py"
         respawn="false"
         output="screen"
         launch-prefix="gnome-terminal --tab --" />
+
+    <!-- sonido de la simulación -->
 
 
     <!-- gui para controlar el experimento -->
@@ -52,5 +44,14 @@
         output="screen"
         launch-prefix="gnome-terminal --tab --" />
 
+    <!-- gui para el usuario -->
+    <node name="run_gui_user"
+        pkg="user_interaction"
+        type="start_gui.sh"
+        respawn="false"
+        output="screen"
+        launch-prefix="gnome-terminal --tab --" />
+
+    <include file="$(find arlo_mejorado)/launch/xbot_basic_house.launch" />
 
 </launch>

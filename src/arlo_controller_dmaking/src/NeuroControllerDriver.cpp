@@ -90,6 +90,8 @@ void NeuroControllerDriver::setParameters(const char *weightsFile, int num_ind)
                   i++;
                   // cout << std::setprecision(15) <<matrixEntry << endl;
                }
+
+         // printWeights();
       }
       else
       {
@@ -114,10 +116,12 @@ void NeuroControllerDriver::driveArlo(const vector<double> &inputs, vector<doubl
       // cout << layerOutputs[INPUT_LAYER][i] << endl;
 
       if (isinf(layerOutputs[INPUT_LAYER][i]))
+      {
          layerOutputs[INPUT_LAYER][i] = 4;
-      // cout << layerOutputs[INPUT_LAYER][i] << ", ";
+         cout << "isinf[" << i << "]:" << layerOutputs[INPUT_LAYER][i] << ", ";
+      }
    }
-   // cout << "\n";
+   // cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 
    /*** 1. Compute NN outputs ***/
    /*****************************/
@@ -125,7 +129,7 @@ void NeuroControllerDriver::driveArlo(const vector<double> &inputs, vector<doubl
    // cout << "Ya se calculo la salida de la red.\n";
 
    reaction = layerOutputs.back(); // Get the computed output values vector.
-
+   cout << reaction[0] << "--" << reaction[1] << endl;
    // printOutputs(layerOutputs[nHiddenLayers+1]);
    checkOutputs(reaction);
 
@@ -153,8 +157,9 @@ void NeuroControllerDriver::nnOuputs()
 
          // For each input i of layer k-1
          for (int i = 0; i < numNodesLayer[k - 1]; i++)
+         {
             layerOutputs[k][j] += layerOutputs[k - 1][i] * weights[k - 1][i][j];
-
+         }
          // Normalize each output of the hidden layer.
          // layerOutputs[k][j] = sigmoid(layerOutputs[k][j], 0.01);
       }
@@ -287,6 +292,7 @@ void NeuroControllerDriver::adjustOutputs(vector<double> &y)
    for (int i = 0; i < y.size(); ++i)
    {
       y[i] = sigmoid(y[i], factor[i]);
+      // cout << i << " = " << y[i] << endl;
       y[i] = oBounds[i].first + (oBounds[i].second - oBounds[i].first) * y[i];
    }
 }

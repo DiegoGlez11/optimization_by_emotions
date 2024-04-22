@@ -3,7 +3,15 @@ import numpy as np
 from neurocontroller_database.srv import get_type_id
 from neurocontroller_database.srv import get_id
 from neurocontroller_database.srv import load_obj_space
+from neurocontroller_database.srv import id_to_path
 
+def id_to_filePath(id_pareto, is_object_space=False, return_id=False, version="v2"):
+    try:
+        srv = rospy.ServiceProxy("id_to_path", id_to_path)
+        res = srv(id_pareto, is_object_space, return_id, version)
+        return res
+    except Exception as e:
+        print(f"Error al convertir el ID:{id_pareto} a su ruta:\n{e}")
 
 def create_id(base_name, directory):
     rospy.wait_for_service("get_id")

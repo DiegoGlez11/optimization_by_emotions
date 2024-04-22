@@ -66,6 +66,7 @@ add_service_files(
   get_emotion_evaluations.srv
   load_evaluation_data.srv
   get_emotional_distributions.srv
+  id_to_path.srv
 )
 
 ## Generate actions in the 'action' folder

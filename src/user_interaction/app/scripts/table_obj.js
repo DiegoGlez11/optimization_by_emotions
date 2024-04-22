@@ -80,9 +80,10 @@ function table_set_data(table, ds, id_pareto) {
     for (let i = 0; i < ds["x"].length; i++) {
         let tr = document.createElement("tr");
         tr.setAttribute("class", "row");
-        tr.setAttribute("id_ind", `${ds.relative_id_pareto[i]}/ind_${ds.relative_num_ind[i]}`);
         tr.setAttribute("position", i);
         tr.setAttribute("relative_id_pareto", ds.relative_id_pareto[i]);
+        tr.setAttribute("id_ind", `${ds.relative_id_pareto[i]}/ind_${ds.relative_num_ind[i]}`);
+        tr.setAttribute("id", `${ds.relative_id_pareto[i]}/ind_${ds.relative_num_ind[i]}`);
 
         if (i % 2 != 0) tr.classList.add("pair_r");
 
@@ -146,7 +147,7 @@ function mouseleave_ind(e) {
     if (c.search("inds_table") < 0) return;
 
     // datos del ind
-    let id_pareto = table.getAttribute("id_pareto");
+    let id_pareto = table.getAttribute("relative_id_pareto");
 
     // datos del frente
     let ds = PARETO_DATA[id_pareto];
@@ -188,9 +189,12 @@ function click_ind(e) {
     if (c.search("row") < 0) return;
 
     // id del frente
-    let id_pareto = row.getAttribute("id_pareto");
+    let id_pareto = row.getAttribute("relative_id_pareto");
     // pos del ind
     let pos = row.getAttribute("position");
+
+    // datos del frente
+    let ds = PARETO_DATA[id_pareto];
 
     // si es ind seleccionado
     let is_sel = ds.is_selected[pos];
@@ -200,23 +204,23 @@ function click_ind(e) {
         return;
     }
 
-    // datos del frente
-    let ds = PARETO_DATA[id_pareto];
-
     // cambio de estado de los puntos seleccionados
     for (let i = 0; i < ds.is_selected.length; i++) {
         if (i != pos) {
             ds.is_selected[i] = true;
             // se actualizan los ind de la gráfica
             update_graph(id_pareto, ds.relative_id_pareto[i], ds.relative_num_ind[i], false);
+
             // vista de la fila
-            document.getElementById(`${ds.id_pareto_ind[i]}/ind_${ds.num_ind[i]}`).style.background = "rgb(180, 179, 179)";
+            let elem = document.getElementById(`${ds.relative_id_pareto[i]}/ind_${ds.relative_num_ind[i]}`);
+            // console.log(elem);
+            elem.style.background = "rgb(180, 179, 179)";
         }
     }
     // vista de la fila
-    document.getElementById(`${id_pareto}/ind_${ds.num_ind[pos]}`).style.background = "blue";
+    document.getElementById(`${id_pareto}/ind_${ds.relative_num_ind[pos]}`).style.background = "blue";
 
 
     // se envía el ind seleccionado
-    send_data_front(id_pareto, ds.id_pareto_ind[pos], ds.num_ind[pos], ds.storage_pos);
+    send_data_front(id_pareto, ds.relative_id_pareto[pos], ds.relative_num_ind[pos], ds.storage_pos);
 }

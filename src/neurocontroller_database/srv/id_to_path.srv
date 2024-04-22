@@ -1,0 +1,7 @@
+string id_pareto_front #id compuesto
+bool is_object_space
+bool return_id
+string version
+---
+string[] path
+string[] id_pareto_front #lista con los id simple de cada individuo 

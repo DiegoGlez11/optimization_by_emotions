@@ -21,6 +21,7 @@ from neurocontroller_database.srv import get_type_id, get_type_idResponse
 from neurocontroller_database.srv import load_dataset, load_datasetResponse
 from neurocontroller_database.srv import load_obj_space, load_obj_spaceResponse
 from neurocontroller_database.srv import load_ind, load_indResponse
+from neurocontroller_database.srv import id_to_path, id_to_pathResponse
 from eeg_signal_acquisition.srv import eeg_block_srv, eeg_block_srvResponse
 from emotion_classification.srv import control_emotions
 import numpy as np
@@ -51,14 +52,27 @@ def num_to_fileName(num_gen, is_obj_space=True):
         raise Exception(f"No existe el numero de generacion {num_gen}")
     else:
         if is_obj_space:
-            str_num = f"obj_space_gen_{str_num}.out"
+            str_num = f"obj_space_gen_{str_num}"
         else:
-            str_num = f"var_space_gen_{str_num}.out"
+            str_num = f"var_space_gen_{str_num}"
             
         return str_num
     
 
-def id_to_fileName(id_pareto, is_obj_space=True, return_id=False):
+def srv_id_to_filePath(req):
+    paths =id_to_filePath(req.id_pareto_front, req.is_object_space, req.return_id, req.version)
+    if len(paths.shape) > 1:
+        p = paths[:,0]
+        ids = paths[:,1]
+    else:
+        p = paths
+        ids = []
+
+    return id_to_pathResponse(p, ids)
+
+
+
+def id_to_filePath(id_pareto, is_obj_space=True, return_id=False, version="v2"):
     # se separan los id (id compuesto)
     ids = id_pareto.split("_")
 
@@ -88,13 +102,24 @@ def id_to_fileName(id_pareto, is_obj_space=True, return_id=False):
         fileName = num_to_fileName(int(s_id[1]), is_obj_space)
         # ruta completa del archivo
         path_ += f"/{fileName}"
+
+        # si son pesos de una ANN version en c++
+        if version == "v1":
+            path_ = f"{path_}.out"
+
+        # weights of model version 2
+        if version == "v2":
+            if is_obj_space:
+                path_ = f"{path_}.out"
+            else:
+                path_ = f"{path_}"
         
         if return_id:
             path_list.append([id, path_])
         else:
             path_list.append(path_)
 
-    return path_list
+    return np.array(path_list)
 
 
 def check_id(id_pareto):
@@ -125,7 +150,7 @@ def load_object_space_(req):
     all_id_pareto = []
     
     # dir de los archivos
-    dat_inds = id_to_fileName(id_pareto, is_obj_space=True, return_id=True)
+    dat_inds = id_to_filePath(id_pareto, is_obj_space=True, return_id=True)
     for id_file in dat_inds:
 
         # se cargan los individuos del frente (pos 1 = a dir del archivo)
@@ -218,20 +243,27 @@ def load_var_space_(req):
 
     check_id(id_pareto)
 
-    ind_path = id_to_fileName(id_pareto, is_obj_space=False, return_id=False)
+    ind_path = id_to_filePath(id_pareto, is_obj_space=False, return_id=False)
 
     # solo se puede cargar un neurocontrolador a la vez (red neuronal)
     if len(ind_path) > 1:
         print_error(f"Solo se puede cargar un neurocontrolador, el ID es compuesto: {id_pareto}")
     
-
-    data = np.array(pd.read_csv(ind_path[0], delim_whitespace=True, header=None))
-    data = data[num_ind]
-
+    ind_path = ind_path[0]
     print(ind_path)
 
-    return load_indResponse(data)
+    if ind_path.find(".out") >= 0:
+        data = np.array(pd.read_csv(ind_path, delim_whitespace=True, header=None))
+        data = data[num_ind]
+        return load_indResponse(data, "")
 
+    # if os.path.isdir(ind_path):
+    #     ind_path += f"ind_{num_ind}.h5" 
+    #     model = tf.keras.saving.load_model(ind_path)
+    #     w = model.get_weights()
+    #     w = json.dumps(w)
+
+        return load_indResponse([], w) 
 
 
 if "__main__" == __name__:
@@ -242,7 +274,7 @@ if "__main__" == __name__:
 
     load_obj_srv = rospy.Service("load_object_space", load_obj_space, load_object_space_)
     load_var_srv = rospy.Service("load_var_space", load_ind, load_var_space_)
-
+    id_to_p = rospy.Service("id_to_path", id_to_path, srv_id_to_filePath)
     # topic_prepro = rospy.Subscriber("preprocessing_eeg_signals", eeg_block, train_intersubject)
     print("Nodo dataset_loader iniciado con éxito");
     rospy.spin()
